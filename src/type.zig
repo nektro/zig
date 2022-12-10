@@ -2721,7 +2721,6 @@ pub const Type = extern union {
         };
     }
 
-    /// TODO add enums with no fields here
     pub fn isNoReturn(ty: Type) bool {
         switch (ty.tag()) {
             .noreturn => return true,
@@ -2735,6 +2734,9 @@ pub const Type = extern union {
                 const names = name_map.keys();
                 return names.len == 0;
             },
+            .enum_simple => return ty.castTag(.enum_simple).?.data.fields.count() == 0,
+            .enum_numbered => return ty.castTag(.enum_numbered).?.data.fields.count() == 0,
+            .enum_full => return ty.castTag(.enum_full).?.data.fields.count() == 0,
             else => return false,
         }
     }
