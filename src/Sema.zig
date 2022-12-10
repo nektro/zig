@@ -5479,7 +5479,7 @@ pub fn analyzeExport(
     const new_export = try gpa.create(Export);
     errdefer gpa.destroy(new_export);
 
-    const symbol_name = try gpa.dupe(u8, borrowed_options.name);
+    const symbol_name = try gpa.dupeZ(u8, borrowed_options.name);
     errdefer gpa.free(symbol_name);
 
     const section: ?[]const u8 = if (borrowed_options.section) |s| try gpa.dupe(u8, s) else null;

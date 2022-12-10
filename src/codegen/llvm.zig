@@ -695,12 +695,7 @@ pub const Object = struct {
             for (export_list.items) |exp| {
                 // Detect if the LLVM global has already been created as an extern. In such
                 // case, we need to replace all uses of it with this exported global.
-                // TODO update std.builtin.ExportOptions to have the name be a
-                // null-terminated slice.
-                const exp_name_z = try mod.gpa.dupeZ(u8, exp.options.name);
-                defer mod.gpa.free(exp_name_z);
-
-                const other_global = object.getLlvmGlobal(exp_name_z.ptr) orelse continue;
+                const other_global = object.getLlvmGlobal(exp.options.name.ptr) orelse continue;
                 if (other_global == llvm_global) continue;
 
                 // replaceAllUsesWith requires the type to be unchanged. So we bitcast

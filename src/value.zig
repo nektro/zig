@@ -853,24 +853,24 @@ pub const Value = extern union {
 
     /// Asserts that the value is representable as an array of bytes.
     /// Copies the value into a freshly allocated slice of memory, which is owned by the caller.
-    pub fn toAllocatedBytes(val: Value, ty: Type, allocator: Allocator, mod: *Module) ![]u8 {
+    pub fn toAllocatedBytes(val: Value, ty: Type, allocator: Allocator, mod: *Module) ![:0]u8 {
         const target = mod.getTarget();
         switch (val.tag()) {
             .bytes => {
                 const bytes = val.castTag(.bytes).?.data;
                 const adjusted_len = bytes.len - @boolToInt(ty.sentinel() != null);
                 const adjusted_bytes = bytes[0..adjusted_len];
-                return allocator.dupe(u8, adjusted_bytes);
+                return allocator.dupeZ(u8, adjusted_bytes);
             },
             .str_lit => {
                 const str_lit = val.castTag(.str_lit).?.data;
                 const bytes = mod.string_literal_bytes.items[str_lit.index..][0..str_lit.len];
-                return allocator.dupe(u8, bytes);
+                return allocator.dupeZ(u8, bytes);
             },
-            .enum_literal => return allocator.dupe(u8, val.castTag(.enum_literal).?.data),
+            .enum_literal => return allocator.dupeZ(u8, val.castTag(.enum_literal).?.data),
             .repeated => {
                 const byte = @intCast(u8, val.castTag(.repeated).?.data.toUnsignedInt(target));
-                const result = try allocator.alloc(u8, @intCast(usize, ty.arrayLen()));
+                const result = try allocator.allocSentinel(u8, @intCast(usize, ty.arrayLen()), 0);
                 std.mem.set(u8, result, byte);
                 return result;
             },
@@ -880,7 +880,10 @@ pub const Value = extern union {
                 const decl_val = try decl.value();
                 return decl_val.toAllocatedBytes(decl.ty, allocator, mod);
             },
-            .the_only_possible_value => return &[_]u8{},
+            .the_only_possible_value => {
+                var arr = [_:0]u8{};
+                return &arr;
+            },
             .slice => {
                 const slice = val.castTag(.slice).?.data;
                 return arrayToAllocatedBytes(slice.ptr, slice.len.toUnsignedInt(target), allocator, mod);
@@ -889,8 +892,8 @@ pub const Value = extern union {
         }
     }
 
-    fn arrayToAllocatedBytes(val: Value, len: u64, allocator: Allocator, mod: *Module) ![]u8 {
-        const result = try allocator.alloc(u8, @intCast(usize, len));
+    fn arrayToAllocatedBytes(val: Value, len: u64, allocator: Allocator, mod: *Module) ![:0]u8 {
+        const result = try allocator.allocSentinel(u8, @intCast(usize, len), 0);
         var elem_value_buf: ElemValueBuffer = undefined;
         for (result) |*elem, i| {
             const elem_val = val.elemValueBuffer(mod, i, &elem_value_buf);
