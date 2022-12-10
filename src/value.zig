@@ -1265,7 +1265,7 @@ pub const Value = extern union {
             return;
         }
         switch (ty.zigTypeTag()) {
-            .Void => {},
+            .Void, .Type, .ComptimeInt, .ComptimeFloat, .Null, .Undefined, .EnumLiteral => {},
             .Bool => {
                 buffer[0] = @boolToInt(val.toBool());
             },
@@ -1343,6 +1343,7 @@ pub const Value = extern union {
                 const int = mod.global_error_set.get(val.castTag(.@"error").?.data.name).?;
                 std.mem.writeInt(Int, buffer[0..@sizeOf(Int)], @intCast(Int, int), endian);
             },
+            .NoReturn, .Fn, .Opaque => unreachable,
             else => @panic("TODO implement writeToMemory for more types"),
         }
     }
