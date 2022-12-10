@@ -48,6 +48,7 @@ pub fn main() !void {
     var in_file = try fs.cwd().openFile(in_file_name, .{ .mode = .read_only });
     defer in_file.close();
 
+    try fs.cwd().makePath(fs.path.dirname(out_file_name).?);
     var out_file = try fs.cwd().createFile(out_file_name, .{});
     defer out_file.close();
 
