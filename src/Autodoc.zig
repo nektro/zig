@@ -775,22 +775,15 @@ const DocData = struct {
                 .builtinField => {
                     try jsw.emitString(@tagName(self.builtinField));
                 },
-                else => {
-                    inline for (comptime std.meta.fields(Expr)) |case| {
-                        // TODO: this is super ugly, fix once `inline else` is a thing
-                        if (comptime std.mem.eql(u8, case.name, "builtinField"))
-                            continue;
-                        if (@field(Expr, case.name) == active_tag) {
-                            try std.json.stringify(@field(self, case.name), opts, w);
-                            jsw.state_index -= 1;
-                            // TODO: we should not reach into the state of the
-                            //       json writer, but alas, this is what's
-                            //       necessary with the current api.
-                            //       would be nice to have a proper integration
-                            //       between the json writer and the generic
-                            //       std.json.stringify implementation
-                        }
-                    }
+                inline else => |case| {
+                    try std.json.stringify(case, opts, w);
+                    jsw.state_index -= 1;
+                    // TODO: we should not reach into the state of the
+                    //       json writer, but alas, this is what's
+                    //       necessary with the current api.
+                    //       would be nice to have a proper integration
+                    //       between the json writer and the generic
+                    //       std.json.stringify implementation
                 },
             }
             try jsw.endObject();
