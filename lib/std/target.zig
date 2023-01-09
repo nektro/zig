@@ -459,6 +459,7 @@ pub const Target = struct {
     pub const bpf = @import("target/bpf.zig");
     pub const csky = @import("target/csky.zig");
     pub const hexagon = @import("target/hexagon.zig");
+    pub const loongarch = @import("target/loongarch.zig");
     pub const m68k = @import("target/m68k.zig");
     pub const mips = @import("target/mips.zig");
     pub const msp430 = @import("target/msp430.zig");

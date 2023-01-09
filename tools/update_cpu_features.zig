@@ -754,6 +754,11 @@ const llvm_targets = [_]LlvmTarget{
         .td_name = "Lanai.td",
     },
     .{
+        .zig_name = "loongarch",
+        .llvm_name = "LoongArch",
+        .td_name = "LoongArch.td",
+    },
+    .{
         .zig_name = "m68k",
         .llvm_name = "M68k",
         .td_name = "M68k.td",
