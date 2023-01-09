@@ -452,8 +452,8 @@ pub const Target = struct {
     };
 
     pub const aarch64 = @import("target/aarch64.zig");
-    pub const arc = @import("target/arc.zig");
     pub const amdgpu = @import("target/amdgpu.zig");
+    pub const arc = @import("target/arc.zig");
     pub const arm = @import("target/arm.zig");
     pub const avr = @import("target/avr.zig");
     pub const bpf = @import("target/bpf.zig");
@@ -465,9 +465,9 @@ pub const Target = struct {
     pub const nvptx = @import("target/nvptx.zig");
     pub const powerpc = @import("target/powerpc.zig");
     pub const riscv = @import("target/riscv.zig");
+    pub const s390x = @import("target/s390x.zig");
     pub const sparc = @import("target/sparc.zig");
     pub const spirv = @import("target/spirv.zig");
-    pub const s390x = @import("target/s390x.zig");
     pub const ve = @import("target/ve.zig");
     pub const wasm = @import("target/wasm.zig");
     pub const x86 = @import("target/x86.zig");
