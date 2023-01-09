@@ -7019,6 +7019,7 @@ pub const CType = enum {
                 .renderscript32,
                 .ve,
                 .spu_2,
+                .xtensa,
                 => 4,
 
                 .aarch64_32,

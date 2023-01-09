@@ -307,6 +307,7 @@ pub fn hasLlvmSupport(target: std.Target, ofmt: std.Target.ObjectFormat) bool {
         .renderscript32,
         .renderscript64,
         .ve,
+        .xtensa,
         => true,
 
         .spu_2,
@@ -569,6 +570,7 @@ pub fn atomicPtrAlignment(
         .spirv32,
         .dxil,
         .loongarch32,
+        .xtensa,
         => 32,
 
         .aarch64,

@@ -1348,6 +1348,7 @@ pub const ArchType = enum(c_int) {
     kalimba,
     shave,
     lanai,
+    xtensa,
     wasm32,
     wasm64,
     renderscript32,

@@ -852,6 +852,11 @@ const llvm_targets = [_]LlvmTarget{
         .llvm_name = "XCore",
         .td_name = "XCore.td",
     },
+    .{
+        .zig_name = "xtensa",
+        .llvm_name = "Xtensa",
+        .td_name = "Xtensa.td",
+    },
 };
 
 pub fn main() anyerror!void {

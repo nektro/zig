@@ -78,6 +78,7 @@ pub fn targetTriple(allocator: Allocator, target: std.Target) ![:0]u8 {
         .x86 => "i386",
         .x86_64 => "x86_64",
         .xcore => "xcore",
+        .xtensa => "xtensa",
         .nvptx => "nvptx",
         .nvptx64 => "nvptx64",
         .le32 => "le32",
@@ -293,6 +294,7 @@ pub fn targetArch(arch_tag: std.Target.Cpu.Arch) llvm.ArchType {
         .x86 => .x86,
         .x86_64 => .x86_64,
         .xcore => .xcore,
+        .xtensa => .xtensa,
         .nvptx => .nvptx,
         .nvptx64 => .nvptx64,
         .le32 => .le32,
@@ -10154,6 +10156,7 @@ fn initializeLLVMTarget(arch: std.Target.Cpu.Arch) void {
         .dxil,
         .loongarch32,
         .loongarch64,
+        .xtensa,
         => {},
 
         .spu_2 => unreachable, // LLVM does not support this backend

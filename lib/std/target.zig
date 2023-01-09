@@ -472,6 +472,7 @@ pub const Target = struct {
     pub const ve = @import("target/ve.zig");
     pub const wasm = @import("target/wasm.zig");
     pub const x86 = @import("target/x86.zig");
+    pub const xtensa = @import("target/xtensa.zig");
 
     pub const Abi = enum {
         none,
@@ -859,6 +860,7 @@ pub const Target = struct {
             x86,
             x86_64,
             xcore,
+            xtensa,
             nvptx,
             nvptx64,
             le32,
@@ -1026,6 +1028,7 @@ pub const Target = struct {
                     .riscv64 => .RISCV,
                     .x86_64 => .X86_64,
                     .nvptx64 => .NONE,
+                    .xtensa => .XTENSA,
                     .le64 => .NONE,
                     .amdil64 => .NONE,
                     .hsail64 => .NONE,
@@ -1108,6 +1111,7 @@ pub const Target = struct {
                     .spirv64 => .Unknown,
                     .loongarch32 => .Unknown,
                     .loongarch64 => .Unknown,
+                    .xtensa => .Unknown,
                 };
             }
 
@@ -1145,6 +1149,7 @@ pub const Target = struct {
                     .wasm32,
                     .wasm64,
                     .xcore,
+                    .xtensa,
                     .thumb,
                     .spir,
                     .spir64,
@@ -1236,6 +1241,7 @@ pub const Target = struct {
                     .spirv32,
                     .loongarch32,
                     .dxil,
+                    .xtensa,
                     => return 32,
 
                     .aarch64,
@@ -1720,6 +1726,7 @@ pub const Target = struct {
                 .dxil,
                 .loongarch32,
                 .loongarch64,
+                .xtensa,
                 => return result,
             },
 
@@ -1823,6 +1830,7 @@ pub const Target = struct {
             .lanai,
             .wasm32,
             .wasm64,
+            .xtensa,
             => 8,
 
             .x86 => return switch (target.os.tag) {
