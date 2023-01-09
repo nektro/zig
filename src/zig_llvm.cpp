@@ -30,6 +30,7 @@
 #include <llvm/IR/InlineAsm.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/LegacyPassManager.h>
+#include "llvm/IR/LLVMContext.h"
 #include <llvm/IR/Module.h>
 #include <llvm/IR/OptBisect.h>
 #include <llvm/IR/PassManager.h>
@@ -286,12 +287,13 @@ bool ZigLLVMTargetMachineEmitToFile(LLVMTargetMachineRef targ_machine_ref, LLVMM
     pipeline_opts.MergeFunctions = !is_debug;
 
     // Instrumentations
+    LLVMContext Context;
     PassInstrumentationCallbacks instr_callbacks;
-    StandardInstrumentations std_instrumentations(false);
+    StandardInstrumentations std_instrumentations(Context, false);
     std_instrumentations.registerCallbacks(instr_callbacks);
 
     PassBuilder pass_builder(&target_machine, pipeline_opts,
-                             None, &instr_callbacks);
+                             std::nullopt, &instr_callbacks);
 
     LoopAnalysisManager loop_am;
     FunctionAnalysisManager function_am;
@@ -415,14 +417,9 @@ ZIG_EXTERN_C LLVMTypeRef ZigLLVMTokenTypeInContext(LLVMContextRef context_ref) {
 
 
 ZIG_EXTERN_C void ZigLLVMSetOptBisectLimit(LLVMContextRef context_ref, int limit) {
-    // In LLVM15 we just have an OptBisect singleton we can edit.
-    OptBisect& bisect = getOptBisector();
-    bisect.setLimit(limit);
-
-    // In LLVM16 OptBisect will be wrapped in OptPassGate, and will need to be set per context.
-    // static OptBisect _opt_bisector;
-    // _opt_bisector.setLimit(limit);
-    // unwrap(context_ref)->setOptPassGate(_opt_bisector);
+    static OptBisect _opt_bisector;
+    _opt_bisector.setLimit(limit);
+    unwrap(context_ref)->setOptPassGate(_opt_bisector);
 }
 
 LLVMValueRef ZigLLVMAddFunctionInAddressSpace(LLVMModuleRef M, const char *Name, LLVMTypeRef FunctionTy, unsigned AddressSpace) {
@@ -1467,7 +1464,10 @@ static_assert((Triple::ArchType)ZigLLVM_avr == Triple::avr, "");
 static_assert((Triple::ArchType)ZigLLVM_bpfel == Triple::bpfel, "");
 static_assert((Triple::ArchType)ZigLLVM_bpfeb == Triple::bpfeb, "");
 static_assert((Triple::ArchType)ZigLLVM_csky == Triple::csky, "");
+static_assert((Triple::ArchType)ZigLLVM_dxil == Triple::dxil, "");
 static_assert((Triple::ArchType)ZigLLVM_hexagon == Triple::hexagon, "");
+static_assert((Triple::ArchType)ZigLLVM_loongarch32 == Triple::loongarch32, "");
+static_assert((Triple::ArchType)ZigLLVM_loongarch64 == Triple::loongarch64, "");
 static_assert((Triple::ArchType)ZigLLVM_m68k == Triple::m68k, "");
 static_assert((Triple::ArchType)ZigLLVM_mips == Triple::mips, "");
 static_assert((Triple::ArchType)ZigLLVM_mipsel == Triple::mipsel, "");
@@ -1508,6 +1508,7 @@ static_assert((Triple::ArchType)ZigLLVM_spirv64 == Triple::spirv64, "");
 static_assert((Triple::ArchType)ZigLLVM_kalimba == Triple::kalimba, "");
 static_assert((Triple::ArchType)ZigLLVM_shave == Triple::shave, "");
 static_assert((Triple::ArchType)ZigLLVM_lanai == Triple::lanai, "");
+static_assert((Triple::ArchType)ZigLLVM_xtensa == Triple::xtensa, "");
 static_assert((Triple::ArchType)ZigLLVM_wasm32 == Triple::wasm32, "");
 static_assert((Triple::ArchType)ZigLLVM_wasm64 == Triple::wasm64, "");
 static_assert((Triple::ArchType)ZigLLVM_renderscript32 == Triple::renderscript32, "");
@@ -1578,6 +1579,9 @@ static_assert((Triple::EnvironmentType)ZigLLVM_GNUABIN32 == Triple::GNUABIN32, "
 static_assert((Triple::EnvironmentType)ZigLLVM_GNUABI64 == Triple::GNUABI64, "");
 static_assert((Triple::EnvironmentType)ZigLLVM_GNUEABI == Triple::GNUEABI, "");
 static_assert((Triple::EnvironmentType)ZigLLVM_GNUEABIHF == Triple::GNUEABIHF, "");
+static_assert((Triple::EnvironmentType)ZigLLVM_GNUF32 == Triple::GNUF32, "");
+static_assert((Triple::EnvironmentType)ZigLLVM_GNUF64 == Triple::GNUF64, "");
+static_assert((Triple::EnvironmentType)ZigLLVM_GNUSF == Triple::GNUSF, "");
 static_assert((Triple::EnvironmentType)ZigLLVM_GNUX32 == Triple::GNUX32, "");
 static_assert((Triple::EnvironmentType)ZigLLVM_GNUILP32 == Triple::GNUILP32, "");
 static_assert((Triple::EnvironmentType)ZigLLVM_CODE16 == Triple::CODE16, "");

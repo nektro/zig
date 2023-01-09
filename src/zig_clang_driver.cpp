@@ -13,6 +13,7 @@
 
 #include "clang/Driver/Driver.h"
 #include "clang/Basic/DiagnosticOptions.h"
+#include "clang/Basic/HeaderInclude.h"
 #include "clang/Basic/Stack.h"
 #include "clang/Config/config.h"
 #include "clang/Driver/Compilation.h"
@@ -48,6 +49,7 @@
 #include "llvm/Support/Timer.h"
 #include "llvm/Support/raw_ostream.h"
 #include <memory>
+#include <optional>
 #include <set>
 #include <system_error>
 using namespace clang;
@@ -241,29 +243,68 @@ static void getCLEnvVarOptions(std::string &EnvValue, llvm::StringSaver &Saver,
       *NumberSignPtr = '=';
 }
 
-static void SetBackdoorDriverOutputsFromEnvVars(Driver &TheDriver) {
-  auto CheckEnvVar = [](const char *EnvOptSet, const char *EnvOptFile,
-                        std::string &OptFile) {
-    bool OptSet = !!::getenv(EnvOptSet);
-    if (OptSet) {
-      if (const char *Var = ::getenv(EnvOptFile))
-        OptFile = Var;
-    }
-    return OptSet;
-  };
+template <class T>
+static T checkEnvVar(const char *EnvOptSet, const char *EnvOptFile,
+                     std::string &OptFile) {
+  const char *Str = ::getenv(EnvOptSet);
+  if (!Str)
+    return T{};
 
+  T OptVal = Str;
+  if (const char *Var = ::getenv(EnvOptFile))
+    OptFile = Var;
+  return OptVal;
+}
+
+static bool SetBackdoorDriverOutputsFromEnvVars(Driver &TheDriver) {
   TheDriver.CCPrintOptions =
-      CheckEnvVar("CC_PRINT_OPTIONS", "CC_PRINT_OPTIONS_FILE",
-                  TheDriver.CCPrintOptionsFilename);
-  TheDriver.CCPrintHeaders =
-      CheckEnvVar("CC_PRINT_HEADERS", "CC_PRINT_HEADERS_FILE",
-                  TheDriver.CCPrintHeadersFilename);
+      checkEnvVar<bool>("CC_PRINT_OPTIONS", "CC_PRINT_OPTIONS_FILE",
+                        TheDriver.CCPrintOptionsFilename);
+  if (checkEnvVar<bool>("CC_PRINT_HEADERS", "CC_PRINT_HEADERS_FILE",
+                        TheDriver.CCPrintHeadersFilename)) {
+    TheDriver.CCPrintHeadersFormat = HIFMT_Textual;
+    TheDriver.CCPrintHeadersFiltering = HIFIL_None;
+  } else {
+    std::string EnvVar = checkEnvVar<std::string>(
+        "CC_PRINT_HEADERS_FORMAT", "CC_PRINT_HEADERS_FILE",
+        TheDriver.CCPrintHeadersFilename);
+    if (!EnvVar.empty()) {
+      TheDriver.CCPrintHeadersFormat =
+          stringToHeaderIncludeFormatKind(EnvVar.c_str());
+      if (!TheDriver.CCPrintHeadersFormat) {
+        TheDriver.Diag(clang::diag::err_drv_print_header_env_var)
+            << 0 << EnvVar;
+        return false;
+      }
+
+      const char *FilteringStr = ::getenv("CC_PRINT_HEADERS_FILTERING");
+      HeaderIncludeFilteringKind Filtering;
+      if (!stringToHeaderIncludeFiltering(FilteringStr, Filtering)) {
+        TheDriver.Diag(clang::diag::err_drv_print_header_env_var)
+            << 1 << FilteringStr;
+        return false;
+      }
+
+      if ((TheDriver.CCPrintHeadersFormat == HIFMT_Textual &&
+           Filtering != HIFIL_None) ||
+          (TheDriver.CCPrintHeadersFormat == HIFMT_JSON &&
+           Filtering != HIFIL_Only_Direct_System)) {
+        TheDriver.Diag(clang::diag::err_drv_print_header_env_var_combination)
+            << EnvVar << FilteringStr;
+        return false;
+      }
+      TheDriver.CCPrintHeadersFiltering = Filtering;
+    }
+  }
+
   TheDriver.CCLogDiagnostics =
-      CheckEnvVar("CC_LOG_DIAGNOSTICS", "CC_LOG_DIAGNOSTICS_FILE",
-                  TheDriver.CCLogDiagnosticsFilename);
+      checkEnvVar<bool>("CC_LOG_DIAGNOSTICS", "CC_LOG_DIAGNOSTICS_FILE",
+                        TheDriver.CCLogDiagnosticsFilename);
   TheDriver.CCPrintProcessStats =
-      CheckEnvVar("CC_PRINT_PROC_STAT", "CC_PRINT_PROC_STAT_FILE",
-                  TheDriver.CCPrintStatReportFilename);
+      checkEnvVar<bool>("CC_PRINT_PROC_STAT", "CC_PRINT_PROC_STAT_FILE",
+                        TheDriver.CCPrintStatReportFilename);
+
+  return true;
 }
 
 static void FixupDiagPrefixExeName(TextDiagnosticPrinter *DiagClient,
@@ -306,9 +347,11 @@ static int ExecuteCC1Tool(SmallVectorImpl<const char *> &ArgV) {
   llvm::cl::ResetAllOptionOccurrences();
 
   llvm::BumpPtrAllocator A;
-  llvm::StringSaver Saver(A);
-  llvm::cl::ExpandResponseFiles(Saver, &llvm::cl::TokenizeGNUCommandLine, ArgV,
-                                /*MarkEOLs=*/false);
+  llvm::cl::ExpansionContext ECtx(A, llvm::cl::TokenizeGNUCommandLine);
+  if (llvm::Error Err = ECtx.expandResponseFiles(ArgV)) {
+    llvm::errs() << toString(std::move(Err)) << '\n';
+    return 1;
+  }
   StringRef Tool = ArgV[1];
   void *GetExecutablePathVP = (void *)(intptr_t)GetExecutablePath;
   if (Tool == "-cc1")
@@ -377,7 +420,12 @@ int ZigClang_main(int Argc, const char **Argv) {
 
   if (MarkEOLs && Args.size() > 1 && StringRef(Args[1]).startswith("-cc1"))
     MarkEOLs = false;
-  llvm::cl::ExpandResponseFiles(Saver, Tokenizer, Args, MarkEOLs);
+  llvm::cl::ExpansionContext ECtx(A, Tokenizer);
+  ECtx.setMarkEOLs(MarkEOLs);
+  if (llvm::Error Err = ECtx.expandResponseFiles(Args)) {
+    llvm::errs() << toString(std::move(Err)) << '\n';
+    return 1;
+  }
 
   // Handle -cc1 integrated tools, even if -cc1 was expanded from a response
   // file.
@@ -409,19 +457,19 @@ int ZigClang_main(int Argc, const char **Argv) {
   // prepended or appended.
   if (ClangCLMode) {
     // Arguments in "CL" are prepended.
-    llvm::Optional<std::string> OptCL = llvm::sys::Process::GetEnv("CL");
+    std::optional<std::string> OptCL = llvm::sys::Process::GetEnv("CL");
     if (OptCL) {
       SmallVector<const char *, 8> PrependedOpts;
-      getCLEnvVarOptions(OptCL.value(), Saver, PrependedOpts);
+      getCLEnvVarOptions(*OptCL, Saver, PrependedOpts);
 
       // Insert right after the program name to prepend to the argument list.
       Args.insert(Args.begin() + 1, PrependedOpts.begin(), PrependedOpts.end());
     }
     // Arguments in "_CL_" are appended.
-    llvm::Optional<std::string> Opt_CL_ = llvm::sys::Process::GetEnv("_CL_");
+    std::optional<std::string> Opt_CL_ = llvm::sys::Process::GetEnv("_CL_");
     if (Opt_CL_) {
       SmallVector<const char *, 8> AppendedOpts;
-      getCLEnvVarOptions(Opt_CL_.value(), Saver, AppendedOpts);
+      getCLEnvVarOptions(*Opt_CL_, Saver, AppendedOpts);
 
       // Insert at the end of the argument list to append.
       Args.append(AppendedOpts.begin(), AppendedOpts.end());
@@ -479,7 +527,8 @@ int ZigClang_main(int Argc, const char **Argv) {
 
   insertTargetAndModeArgs(TargetAndMode, Args, SavedStrings);
 
-  SetBackdoorDriverOutputsFromEnvVars(TheDriver);
+  if (!SetBackdoorDriverOutputsFromEnvVars(TheDriver))
+    return 1;
 
   if (!UseNewCC1Process) {
     TheDriver.CC1Main = &ExecuteCC1Tool;
@@ -496,7 +545,7 @@ int ZigClang_main(int Argc, const char **Argv) {
                      .Case("crash", Driver::ReproLevel::OnCrash)
                      .Case("error", Driver::ReproLevel::OnError)
                      .Case("always", Driver::ReproLevel::Always)
-                     .Default(None);
+                     .Default(std::nullopt);
     if (!Level) {
       llvm::errs() << "Unknown value for " << A->getSpelling() << ": '"
                    << A->getValue() << "'\n";
