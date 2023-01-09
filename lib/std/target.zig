@@ -479,6 +479,9 @@ pub const Target = struct {
         gnuabi64,
         gnueabi,
         gnueabihf,
+        gnuf32,
+        gnuf64,
+        gnusf,
         gnux32,
         gnuilp32,
         code16,
@@ -569,7 +572,7 @@ pub const Target = struct {
 
         pub fn isGnu(abi: Abi) bool {
             return switch (abi) {
-                .gnu, .gnuabin32, .gnuabi64, .gnueabi, .gnueabihf, .gnux32 => true,
+                .gnu, .gnuabin32, .gnuabi64, .gnueabi, .gnueabihf, .gnux32, .gnuf32, .gnuf64, .gnusf => true,
                 else => false,
             };
         }
