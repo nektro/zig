@@ -13,10 +13,13 @@ pub const Feature = enum {
     aclass,
     acquire_release,
     aes,
+    armv8_9_a,
+    armv9_4_a,
     atomics_32,
     avoid_movs_shop,
     avoid_partial_cpsr,
     bf16,
+    big_endian_instructions,
     cde,
     cdecp0,
     cdecp1,
@@ -27,6 +30,7 @@ pub const Feature = enum {
     cdecp6,
     cdecp7,
     cheap_predicable_cpsr,
+    clrbhb,
     crc,
     crypto,
     d32,
@@ -139,10 +143,6 @@ pub const Feature = enum {
     trustzone,
     use_mipipeliner,
     use_misched,
-    v2,
-    v2a,
-    v3,
-    v3m,
     v4,
     v4t,
     v5t,
@@ -171,6 +171,7 @@ pub const Feature = enum {
     v8_6a,
     v8_7a,
     v8_8a,
+    v8_9a,
     v8a,
     v8m,
     v8m_main,
@@ -178,6 +179,7 @@ pub const Feature = enum {
     v9_1a,
     v9_2a,
     v9_3a,
+    v9_4a,
     v9a,
     vfp2,
     vfp2sp,
@@ -252,6 +254,39 @@ pub const all_features = blk: {
             .neon,
         }),
     };
+    result[@enumToInt(Feature.armv8_9_a)] = .{
+        .llvm_name = "armv8.9-a",
+        .description = "ARMv89a architecture",
+        .dependencies = featureSet(&[_]Feature{
+            .aclass,
+            .crc,
+            .crypto,
+            .db,
+            .dsp,
+            .fp_armv8,
+            .mp,
+            .ras,
+            .trustzone,
+            .v8_9a,
+            .virtualization,
+        }),
+    };
+    result[@enumToInt(Feature.armv9_4_a)] = .{
+        .llvm_name = "armv9.4-a",
+        .description = "ARMv94a architecture",
+        .dependencies = featureSet(&[_]Feature{
+            .aclass,
+            .crc,
+            .db,
+            .dsp,
+            .fp_armv8,
+            .mp,
+            .ras,
+            .trustzone,
+            .v9_4a,
+            .virtualization,
+        }),
+    };
     result[@enumToInt(Feature.atomics_32)] = .{
         .llvm_name = "atomics-32",
         .description = "Assume that lock-free 32-bit atomics are available",
@@ -273,6 +308,11 @@ pub const all_features = blk: {
         .dependencies = featureSet(&[_]Feature{
             .neon,
         }),
+    };
+    result[@enumToInt(Feature.big_endian_instructions)] = .{
+        .llvm_name = "big-endian-instructions",
+        .description = "Expect instructions to be stored big-endian.",
+        .dependencies = featureSet(&[_]Feature{}),
     };
     result[@enumToInt(Feature.cde)] = .{
         .llvm_name = "cde",
@@ -340,6 +380,11 @@ pub const all_features = blk: {
     result[@enumToInt(Feature.cheap_predicable_cpsr)] = .{
         .llvm_name = "cheap-predicable-cpsr",
         .description = "Disable +1 predication cost for instructions updating CPSR",
+        .dependencies = featureSet(&[_]Feature{}),
+    };
+    result[@enumToInt(Feature.clrbhb)] = .{
+        .llvm_name = "clrbhb",
+        .description = "Enable Clear BHB instruction",
         .dependencies = featureSet(&[_]Feature{}),
     };
     result[@enumToInt(Feature.crc)] = .{
@@ -1026,34 +1071,6 @@ pub const all_features = blk: {
         .description = "Use the MachineScheduler",
         .dependencies = featureSet(&[_]Feature{}),
     };
-    result[@enumToInt(Feature.v2)] = .{
-        .llvm_name = "armv2",
-        .description = "ARMv2 architecture",
-        .dependencies = featureSet(&[_]Feature{
-            .strict_align,
-        }),
-    };
-    result[@enumToInt(Feature.v2a)] = .{
-        .llvm_name = "armv2a",
-        .description = "ARMv2a architecture",
-        .dependencies = featureSet(&[_]Feature{
-            .strict_align,
-        }),
-    };
-    result[@enumToInt(Feature.v3)] = .{
-        .llvm_name = "armv3",
-        .description = "ARMv3 architecture",
-        .dependencies = featureSet(&[_]Feature{
-            .strict_align,
-        }),
-    };
-    result[@enumToInt(Feature.v3m)] = .{
-        .llvm_name = "armv3m",
-        .description = "ARMv3m architecture",
-        .dependencies = featureSet(&[_]Feature{
-            .strict_align,
-        }),
-    };
     result[@enumToInt(Feature.v4)] = .{
         .llvm_name = "armv4",
         .description = "ARMv4 architecture",
@@ -1384,6 +1401,14 @@ pub const all_features = blk: {
             .virtualization,
         }),
     };
+    result[@enumToInt(Feature.v8_9a)] = .{
+        .llvm_name = "v8.9a",
+        .description = "Support ARM v8.9a instructions",
+        .dependencies = featureSet(&[_]Feature{
+            .clrbhb,
+            .has_v8_8a,
+        }),
+    };
     result[@enumToInt(Feature.v8a)] = .{
         .llvm_name = "armv8-a",
         .description = "ARMv8a architecture",
@@ -1493,6 +1518,14 @@ pub const all_features = blk: {
             .ras,
             .trustzone,
             .virtualization,
+        }),
+    };
+    result[@enumToInt(Feature.v9_4a)] = .{
+        .llvm_name = "v9.4a",
+        .description = "Support ARM v9.4a instructions",
+        .dependencies = featureSet(&[_]Feature{
+            .has_v9_3a,
+            .v8_9a,
         }),
     };
     result[@enumToInt(Feature.v9a)] = .{
