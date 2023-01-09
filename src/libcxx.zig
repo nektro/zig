@@ -65,6 +65,7 @@ const libcxx_files = [_][]const u8{
     "src/legacy_pointer_safety.cpp",
     "src/locale.cpp",
     "src/memory.cpp",
+    "src/memory_resource.cpp",
     "src/mutex.cpp",
     "src/mutex_destructor.cpp",
     "src/new.cpp",
