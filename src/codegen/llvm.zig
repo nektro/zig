@@ -10137,6 +10137,15 @@ fn initializeLLVMTarget(arch: std.Target.Cpu.Arch) void {
                 // There is no LLVMInitializeARCAsmParser function.
             }
         },
+        .xtensa => {
+            if (build_options.llvm_has_xtensa) {
+                llvm.LLVMInitializeXtensaTarget();
+                llvm.LLVMInitializeXtensaTargetInfo();
+                llvm.LLVMInitializeXtensaTargetMC();
+                // There is no LLVMInitializeXtensaAsmPrinter function.
+                llvm.LLVMInitializeXtensaAsmParser();
+            }
+        },
 
         // LLVM backends that have no initialization functions.
         .tce,
@@ -10157,7 +10166,6 @@ fn initializeLLVMTarget(arch: std.Target.Cpu.Arch) void {
         .dxil,
         .loongarch32,
         .loongarch64,
-        .xtensa,
         => {},
 
         .spu_2 => unreachable, // LLVM does not support this backend
