@@ -391,6 +391,7 @@ const usage_build_generic =
     \\  -mcmodel=[default|tiny|   Limit range of code and data virtual addresses
     \\            small|kernel|
     \\            medium|large]
+    \\  -x language               Treat subsequent input files as having type <language>
     \\  -mred-zone                Force-enable the "red-zone"
     \\  -mno-red-zone             Force-disable the "red-zone"
     \\  -fomit-frame-pointer      Omit the stack frame pointer
@@ -913,6 +914,7 @@ fn buildOutputType(
             var cssan = ClangSearchSanitizer.init(gpa, &clang_argv);
             defer cssan.map.deinit();
 
+            var file_ext: ?Compilation.FileExt = null;
             args_loop: while (args_iter.next()) |arg| {
                 if (mem.startsWith(u8, arg, "@")) {
                     // This is a "compiler response file". We must parse the file and treat its
@@ -1401,6 +1403,15 @@ fn buildOutputType(
                         try clang_argv.append(arg);
                     } else if (mem.startsWith(u8, arg, "-I")) {
                         try cssan.addIncludePath(.I, arg, arg[2..], true);
+                    } else if (mem.eql(u8, arg, "-x")) {
+                        const lang = args_iter.nextOrFatal();
+                        if (mem.eql(u8, lang, "none")) {
+                            file_ext = null;
+                        } else if (Compilation.LangToExt.get(lang)) |got_ext| {
+                            file_ext = got_ext;
+                        } else {
+                            fatal("language not recognized: '{s}'", .{lang});
+                        }
                     } else if (mem.startsWith(u8, arg, "-mexec-model=")) {
                         wasi_exec_model = std.meta.stringToEnum(std.builtin.WasiExecModel, arg["-mexec-model=".len..]) orelse {
                             fatal("expected [command|reactor] for -mexec-mode=[value], found '{s}'", .{arg["-mexec-model=".len..]});
@@ -1408,22 +1419,21 @@ fn buildOutputType(
                     } else {
                         fatal("unrecognized parameter: '{s}'", .{arg});
                     }
-                } else switch (Compilation.classifyFileExt(arg)) {
-                    .object, .static_library, .shared_library => {
-                        try link_objects.append(.{ .path = arg });
-                    },
-                    .assembly, .c, .cpp, .h, .ll, .bc, .m, .mm, .cu => {
+                } else switch (file_ext orelse
+                    Compilation.classifyFileExt(arg)) {
+                    .object, .static_library, .shared_library => try link_objects.append(.{ .path = arg }),
+                    .assembly, .assembly_with_cpp, .c, .cpp, .h, .ll, .bc, .m, .mm, .cu => {
                         try c_source_files.append(.{
                             .src_path = arg,
                             .extra_flags = try arena.dupe([]const u8, extra_cflags.items),
+                            // duped when parsing the args.
+                            .ext = file_ext,
                         });
                     },
                     .zig => {
                         if (root_src_file) |other| {
                             fatal("found another zig file '{s}' after root source file '{s}'", .{ arg, other });
-                        } else {
-                            root_src_file = arg;
-                        }
+                        } else root_src_file = arg;
                     },
                     .def, .unknown => {
                         fatal("unrecognized file extension of parameter '{s}'", .{arg});
@@ -1464,6 +1474,7 @@ fn buildOutputType(
             var needed = false;
             var must_link = false;
             var force_static_libs = false;
+            var file_ext: ?Compilation.FileExt = null;
             while (it.has_next) {
                 it.next() catch |err| {
                     fatal("unable to parse command line parameters: {s}", .{@errorName(err)});
@@ -1484,32 +1495,39 @@ fn buildOutputType(
                     .asm_only => c_out_mode = .assembly, // -S
                     .preprocess_only => c_out_mode = .preprocessor, // -E
                     .emit_llvm => emit_llvm = true,
+                    .x => {
+                        const lang = mem.sliceTo(it.only_arg, 0);
+                        if (mem.eql(u8, lang, "none")) {
+                            file_ext = null;
+                        } else if (Compilation.LangToExt.get(lang)) |got_ext| {
+                            file_ext = got_ext;
+                        } else {
+                            fatal("language not recognized: '{s}'", .{lang});
+                        }
+                    },
                     .other => {
                         try clang_argv.appendSlice(it.other_args);
                     },
-                    .positional => {
-                        const file_ext = Compilation.classifyFileExt(mem.sliceTo(it.only_arg, 0));
-                        switch (file_ext) {
-                            .assembly, .c, .cpp, .ll, .bc, .h, .m, .mm, .cu => {
-                                try c_source_files.append(.{ .src_path = it.only_arg });
-                            },
-                            .unknown, .shared_library, .object, .static_library => {
-                                try link_objects.append(.{
-                                    .path = it.only_arg,
-                                    .must_link = must_link,
-                                });
-                            },
-                            .def => {
-                                linker_module_definition_file = it.only_arg;
-                            },
-                            .zig => {
-                                if (root_src_file) |other| {
-                                    fatal("found another zig file '{s}' after root source file '{s}'", .{ it.only_arg, other });
-                                } else {
-                                    root_src_file = it.only_arg;
-                                }
-                            },
-                        }
+                    .positional => switch (file_ext orelse
+                        Compilation.classifyFileExt(mem.sliceTo(it.only_arg, 0))) {
+                        .assembly, .assembly_with_cpp, .c, .cpp, .ll, .bc, .h, .m, .mm, .cu => {
+                            try c_source_files.append(.{
+                                .src_path = it.only_arg,
+                                .ext = file_ext, // duped while parsing the args.
+                            });
+                        },
+                        .unknown, .shared_library, .object, .static_library => try link_objects.append(.{
+                            .path = it.only_arg,
+                            .must_link = must_link,
+                        }),
+                        .def => {
+                            linker_module_definition_file = it.only_arg;
+                        },
+                        .zig => {
+                            if (root_src_file) |other| {
+                                fatal("found another zig file '{s}' after root source file '{s}'", .{ it.only_arg, other });
+                            } else root_src_file = it.only_arg;
+                        },
                     },
                     .l => {
                         // -l
@@ -3983,11 +4001,6 @@ pub fn cmdBuild(gpa: Allocator, arena: Allocator, args: []const []const u8) !voi
         };
         defer zig_lib_directory.handle.close();
 
-        var main_pkg: Package = .{
-            .root_src_directory = zig_lib_directory,
-            .root_src_path = "build_runner.zig",
-        };
-
         var cleanup_build_dir: ?fs.Dir = null;
         defer if (cleanup_build_dir) |*dir| dir.close();
 
@@ -4030,12 +4043,6 @@ pub fn cmdBuild(gpa: Allocator, arena: Allocator, args: []const []const u8) !voi
             }
         };
         child_argv.items[argv_index_build_file] = build_directory.path orelse cwd_path;
-
-        var build_pkg: Package = .{
-            .root_src_directory = build_directory,
-            .root_src_path = build_zig_basename,
-        };
-        try main_pkg.addAndAdopt(arena, "@build", &build_pkg);
 
         var global_cache_directory: Compilation.Directory = l: {
             const p = override_global_cache_dir orelse try introspect.resolveGlobalCacheDir(arena);
@@ -4082,6 +4089,65 @@ pub fn cmdBuild(gpa: Allocator, arena: Allocator, args: []const []const u8) !voi
         var thread_pool: ThreadPool = undefined;
         try thread_pool.init(gpa);
         defer thread_pool.deinit();
+
+        var main_pkg: Package = .{
+            .root_src_directory = zig_lib_directory,
+            .root_src_path = "build_runner.zig",
+        };
+
+        if (!build_options.omit_pkg_fetching_code) {
+            var http_client: std.http.Client = .{ .allocator = gpa };
+            defer http_client.deinit();
+
+            // Here we provide an import to the build runner that allows using reflection to find
+            // all of the dependencies. Without this, there would be no way to use `@import` to
+            // access dependencies by name, since `@import` requires string literals.
+            var dependencies_source = std.ArrayList(u8).init(gpa);
+            defer dependencies_source.deinit();
+            try dependencies_source.appendSlice("pub const imports = struct {\n");
+
+            // This will go into the same package. It contains the file system paths
+            // to all the build.zig files.
+            var build_roots_source = std.ArrayList(u8).init(gpa);
+            defer build_roots_source.deinit();
+
+            // Here we borrow main package's table and will replace it with a fresh
+            // one after this process completes.
+            main_pkg.fetchAndAddDependencies(
+                &thread_pool,
+                &http_client,
+                build_directory,
+                global_cache_directory,
+                local_cache_directory,
+                &dependencies_source,
+                &build_roots_source,
+                "",
+            ) catch |err| switch (err) {
+                error.PackageFetchFailed => process.exit(1),
+                else => |e| return e,
+            };
+
+            try dependencies_source.appendSlice("};\npub const build_root = struct {\n");
+            try dependencies_source.appendSlice(build_roots_source.items);
+            try dependencies_source.appendSlice("};\n");
+
+            const deps_pkg = try Package.createFilePkg(
+                gpa,
+                local_cache_directory,
+                "dependencies.zig",
+                dependencies_source.items,
+            );
+
+            mem.swap(Package.Table, &main_pkg.table, &deps_pkg.table);
+            try main_pkg.addAndAdopt(gpa, "@dependencies", deps_pkg);
+        }
+
+        var build_pkg: Package = .{
+            .root_src_directory = build_directory,
+            .root_src_path = build_zig_basename,
+        };
+        try main_pkg.addAndAdopt(gpa, "@build", &build_pkg);
+
         const comp = Compilation.create(gpa, .{
             .zig_lib_directory = zig_lib_directory,
             .local_cache_directory = local_cache_directory,
@@ -4811,6 +4877,7 @@ pub const ClangArgIterator = struct {
         o,
         c,
         m,
+        x,
         other,
         positional,
         l,

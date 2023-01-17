@@ -1,5 +1,7 @@
 //! TODO: send connection: keep-alive and LRU cache a configurable number of
 //! open connections to skip DNS and TLS handshake for subsequent requests.
+//!
+//! This API is *not* thread safe.
 
 const std = @import("../std.zig");
 const mem = std.mem;
@@ -15,6 +17,9 @@ const testing = std.testing;
 /// managed buffer is not provided.
 allocator: Allocator,
 ca_bundle: std.crypto.Certificate.Bundle = .{},
+/// When this is `true`, the next time this client performs an HTTPS request,
+/// it will first rescan the system for root certificates.
+next_https_rescan_certs: bool = true,
 
 pub const Connection = struct {
     stream: net.Stream,
@@ -524,11 +529,138 @@ pub const Request = struct {
         req.* = undefined;
     }
 
+    pub const Reader = std.io.Reader(*Request, ReadError, read);
+
+    pub fn reader(req: *Request) Reader {
+        return .{ .context = req };
+    }
+
     pub fn readAll(req: *Request, buffer: []u8) !usize {
         return readAtLeast(req, buffer, buffer.len);
     }
 
-    pub fn read(req: *Request, buffer: []u8) !usize {
+    pub const ReadError = net.Stream.ReadError || error{
+        // From HTTP protocol
+        HttpHeadersInvalid,
+        HttpHeadersExceededSizeLimit,
+        HttpRedirectMissingLocation,
+        HttpTransferEncodingUnsupported,
+        HttpContentLengthUnknown,
+        TooManyHttpRedirects,
+        ShortHttpStatusLine,
+        BadHttpVersion,
+        HttpHeaderContinuationsUnsupported,
+        UnsupportedUrlScheme,
+        UriMissingHost,
+        UnknownHostName,
+
+        // Network problems
+        NetworkUnreachable,
+        HostLacksNetworkAddresses,
+        TemporaryNameServerFailure,
+        NameServerFailure,
+        ProtocolFamilyNotAvailable,
+        ProtocolNotSupported,
+
+        // System resource problems
+        ProcessFdQuotaExceeded,
+        SystemFdQuotaExceeded,
+        OutOfMemory,
+
+        // TLS problems
+        InsufficientEntropy,
+        TlsConnectionTruncated,
+        TlsRecordOverflow,
+        TlsDecodeError,
+        TlsAlert,
+        TlsBadRecordMac,
+        TlsBadLength,
+        TlsIllegalParameter,
+        TlsUnexpectedMessage,
+        TlsDecryptFailure,
+        CertificateFieldHasInvalidLength,
+        CertificateHostMismatch,
+        CertificatePublicKeyInvalid,
+        CertificateExpired,
+        CertificateFieldHasWrongDataType,
+        CertificateIssuerMismatch,
+        CertificateNotYetValid,
+        CertificateSignatureAlgorithmMismatch,
+        CertificateSignatureAlgorithmUnsupported,
+        CertificateSignatureInvalid,
+        CertificateSignatureInvalidLength,
+        CertificateSignatureNamedCurveUnsupported,
+        CertificateSignatureUnsupportedBitCount,
+        TlsCertificateNotVerified,
+        TlsBadSignatureScheme,
+        TlsBadRsaSignatureBitCount,
+        TlsDecryptError,
+        UnsupportedCertificateVersion,
+        CertificateTimeInvalid,
+        CertificateHasUnrecognizedObjectId,
+        CertificateHasInvalidBitString,
+        CertificateAuthorityBundleTooBig,
+
+        // TODO: convert to higher level errors
+        InvalidFormat,
+        InvalidPort,
+        UnexpectedCharacter,
+        Overflow,
+        InvalidCharacter,
+        AddressFamilyNotSupported,
+        AddressInUse,
+        AddressNotAvailable,
+        ConnectionPending,
+        ConnectionRefused,
+        FileNotFound,
+        PermissionDenied,
+        ServiceUnavailable,
+        SocketTypeNotSupported,
+        FileTooBig,
+        LockViolation,
+        NoSpaceLeft,
+        NotOpenForWriting,
+        InvalidEncoding,
+        IdentityElement,
+        NonCanonical,
+        SignatureVerificationFailed,
+        MessageTooLong,
+        NegativeIntoUnsigned,
+        TargetTooSmall,
+        BufferTooSmall,
+        InvalidSignature,
+        NotSquare,
+        DiskQuota,
+        InvalidEnd,
+        Incomplete,
+        InvalidIpv4Mapping,
+        InvalidIPAddressFormat,
+        BadPathName,
+        DeviceBusy,
+        FileBusy,
+        FileLocksNotSupported,
+        InvalidHandle,
+        InvalidUtf8,
+        NameTooLong,
+        NoDevice,
+        PathAlreadyExists,
+        PipeBusy,
+        SharingViolation,
+        SymLinkLoop,
+        FileSystem,
+        InterfaceNotFound,
+        AlreadyBound,
+        FileDescriptorNotASocket,
+        NetworkSubsystemFailed,
+        NotDir,
+        ReadOnlyFileSystem,
+        Unseekable,
+        MissingEndCertificateMarker,
+        InvalidPadding,
+        EndOfStream,
+    };
+
+    pub fn read(req: *Request, buffer: []u8) ReadError!usize {
         return readAtLeast(req, buffer, 1);
     }
 
@@ -671,7 +803,8 @@ pub const Request = struct {
                     }
                 },
                 .chunk_data => {
-                    const sub_amt = @min(req.response.next_chunk_length, in.len);
+                    // TODO https://github.com/ziglang/zig/issues/14039
+                    const sub_amt = @intCast(usize, @min(req.response.next_chunk_length, in.len));
                     req.response.next_chunk_length -= sub_amt;
                     if (req.response.next_chunk_length > 0) {
                         if (in.ptr == buffer.ptr) {
@@ -709,8 +842,8 @@ pub const Request = struct {
     }
 };
 
-pub fn deinit(client: *Client, gpa: Allocator) void {
-    client.ca_bundle.deinit(gpa);
+pub fn deinit(client: *Client) void {
+    client.ca_bundle.deinit(client.allocator);
     client.* = undefined;
 }
 
@@ -748,6 +881,11 @@ pub fn request(client: *Client, uri: Uri, headers: Request.Headers, options: Req
     };
 
     const host = uri.host orelse return error.UriMissingHost;
+
+    if (client.next_https_rescan_certs and protocol == .tls) {
+        try client.ca_bundle.rescan(client.allocator);
+        client.next_https_rescan_certs = false;
+    }
 
     var req: Request = .{
         .client = client,
