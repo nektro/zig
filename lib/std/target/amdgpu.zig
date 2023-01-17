@@ -167,7 +167,7 @@ pub const all_features = blk: {
     };
     result[@enumToInt(Feature.a16)] = .{
         .llvm_name = "a16",
-        .description = "Support gfx10-style A16 for 16-bit coordinates/gradients/lod/clamp/mip image operands",
+        .description = "Support A16 for 16-bit coordinates/gradients/lod/clamp/mip image operands",
         .dependencies = featureSet(&[_]Feature{}),
     };
     result[@enumToInt(Feature.add_no_carry_insts)] = .{
@@ -527,6 +527,7 @@ pub const all_features = blk: {
         .description = "GFX9 GPU generation",
         .dependencies = featureSet(&[_]Feature{
             .@"16_bit_insts",
+            .a16,
             .add_no_carry_insts,
             .aperture_regs,
             .ci_insts,
@@ -1415,7 +1416,6 @@ pub const cpu = struct {
             .architected_flat_scratch,
             .atomic_fadd_no_rtn_insts,
             .atomic_fadd_rtn_insts,
-            .back_off_barrier,
             .dl_insts,
             .dot5_insts,
             .dot7_insts,
@@ -1443,7 +1443,6 @@ pub const cpu = struct {
             .architected_flat_scratch,
             .atomic_fadd_no_rtn_insts,
             .atomic_fadd_rtn_insts,
-            .back_off_barrier,
             .dl_insts,
             .dot5_insts,
             .dot7_insts,
@@ -1470,7 +1469,6 @@ pub const cpu = struct {
             .architected_flat_scratch,
             .atomic_fadd_no_rtn_insts,
             .atomic_fadd_rtn_insts,
-            .back_off_barrier,
             .dl_insts,
             .dot5_insts,
             .dot7_insts,
@@ -1497,7 +1495,6 @@ pub const cpu = struct {
             .architected_flat_scratch,
             .atomic_fadd_no_rtn_insts,
             .atomic_fadd_rtn_insts,
-            .back_off_barrier,
             .dl_insts,
             .dot5_insts,
             .dot7_insts,

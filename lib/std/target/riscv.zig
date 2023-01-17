@@ -20,6 +20,7 @@ pub const Feature = enum {
     experimental_zvfh,
     f,
     forced_atomics,
+    h,
     lui_addi_fusion,
     m,
     no_default_unroll,
@@ -110,6 +111,7 @@ pub const Feature = enum {
     zvl4096b,
     zvl512b,
     zvl64b,
+    zvl65536b,
     zvl8192b,
 };
 
@@ -199,6 +201,11 @@ pub const all_features = blk: {
     result[@enumToInt(Feature.forced_atomics)] = .{
         .llvm_name = "forced-atomics",
         .description = "Assume that lock-free native-width atomics are available",
+        .dependencies = featureSet(&[_]Feature{}),
+    };
+    result[@enumToInt(Feature.h)] = .{
+        .llvm_name = "h",
+        .description = "'H' (Hypervisor)",
         .dependencies = featureSet(&[_]Feature{}),
     };
     result[@enumToInt(Feature.lui_addi_fusion)] = .{
@@ -712,6 +719,13 @@ pub const all_features = blk: {
         .description = "'Zvl' (Minimum Vector Length) 64",
         .dependencies = featureSet(&[_]Feature{
             .zvl32b,
+        }),
+    };
+    result[@enumToInt(Feature.zvl65536b)] = .{
+        .llvm_name = "zvl65536b",
+        .description = "'Zvl' (Minimum Vector Length) 65536",
+        .dependencies = featureSet(&[_]Feature{
+            .zvl32768b,
         }),
     };
     result[@enumToInt(Feature.zvl8192b)] = .{

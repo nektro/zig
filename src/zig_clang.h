@@ -434,6 +434,7 @@ enum ZigClangStmtClass {
     ZigClangStmt_CXXNewExprClass,
     ZigClangStmt_CXXNoexceptExprClass,
     ZigClangStmt_CXXNullPtrLiteralExprClass,
+    ZigClangStmt_CXXParenListInitExprClass,
     ZigClangStmt_CXXPseudoDestructorExprClass,
     ZigClangStmt_CXXRewrittenBinaryOperatorClass,
     ZigClangStmt_CXXScalarValueInitExprClass,

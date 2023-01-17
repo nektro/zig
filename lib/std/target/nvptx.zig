@@ -269,6 +269,7 @@ pub const cpu = struct {
         .name = "sm_20",
         .llvm_name = "sm_20",
         .features = featureSet(&[_]Feature{
+            .ptx32,
             .sm_20,
         }),
     };
@@ -276,6 +277,7 @@ pub const cpu = struct {
         .name = "sm_21",
         .llvm_name = "sm_21",
         .features = featureSet(&[_]Feature{
+            .ptx32,
             .sm_21,
         }),
     };
@@ -298,6 +300,7 @@ pub const cpu = struct {
         .name = "sm_35",
         .llvm_name = "sm_35",
         .features = featureSet(&[_]Feature{
+            .ptx32,
             .sm_35,
         }),
     };

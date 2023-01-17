@@ -630,6 +630,7 @@ void ZigClang_detect_enum_StmtClass(clang::Stmt::StmtClass x) {
         case clang::Stmt::VAArgExprClass:
         case clang::Stmt::LabelStmtClass:
         case clang::Stmt::WhileStmtClass:
+        case clang::Stmt::CXXParenListInitExprClass:
             break;
     }
 }
@@ -767,6 +768,7 @@ static_assert((clang::Stmt::StmtClass)ZigClangStmt_CXXInheritedCtorInitExprClass
 static_assert((clang::Stmt::StmtClass)ZigClangStmt_CXXNewExprClass == clang::Stmt::CXXNewExprClass, "");
 static_assert((clang::Stmt::StmtClass)ZigClangStmt_CXXNoexceptExprClass == clang::Stmt::CXXNoexceptExprClass, "");
 static_assert((clang::Stmt::StmtClass)ZigClangStmt_CXXNullPtrLiteralExprClass == clang::Stmt::CXXNullPtrLiteralExprClass, "");
+static_assert((clang::Stmt::StmtClass)ZigClangStmt_CXXParenListInitExprClass == clang::Stmt::CXXParenListInitExprClass, "");
 static_assert((clang::Stmt::StmtClass)ZigClangStmt_CXXPseudoDestructorExprClass == clang::Stmt::CXXPseudoDestructorExprClass, "");
 static_assert((clang::Stmt::StmtClass)ZigClangStmt_CXXRewrittenBinaryOperatorClass == clang::Stmt::CXXRewrittenBinaryOperatorClass, "");
 static_assert((clang::Stmt::StmtClass)ZigClangStmt_CXXScalarValueInitExprClass == clang::Stmt::CXXScalarValueInitExprClass, "");

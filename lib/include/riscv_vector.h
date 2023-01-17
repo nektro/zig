@@ -25,6 +25,8 @@ extern "C" {
 #pragma clang riscv intrinsic vector
 
 
+#define vlenb() __builtin_rvv_vlenb()
+
 enum RVV_CSR {
   RVV_VSTART = 0,
   RVV_VXSAT,

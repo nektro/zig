@@ -6,12 +6,13 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef _LIBCPP___CONCEPTS_CONVERTIBLE_TO_H
-#define _LIBCPP___CONCEPTS_CONVERTIBLE_TO_H
+#ifndef _LIBCPP___TUPLE_PAIR_LIKE_H
+#define _LIBCPP___TUPLE_PAIR_LIKE_H
 
 #include <__config>
-#include <__type_traits/is_convertible.h>
-#include <__utility/declval.h>
+#include <__tuple_dir/tuple_like.h>
+#include <__tuple_dir/tuple_size.h>
+#include <__type_traits/remove_cvref.h>
 
 #if !defined(_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER)
 #  pragma GCC system_header
@@ -19,19 +20,13 @@
 
 _LIBCPP_BEGIN_NAMESPACE_STD
 
-#if _LIBCPP_STD_VER > 17
+#if _LIBCPP_STD_VER >= 20
 
-// [concept.convertible]
+template <class _Tp>
+concept __pair_like = __tuple_like<_Tp> && tuple_size<remove_cvref_t<_Tp>>::value == 2;
 
-template<class _From, class _To>
-concept convertible_to =
-  is_convertible_v<_From, _To> &&
-  requires {
-    static_cast<_To>(std::declval<_From>());
-  };
-
-#endif // _LIBCPP_STD_VER > 17
+#endif // _LIBCPP_STD_VER >= 20
 
 _LIBCPP_END_NAMESPACE_STD
 
-#endif // _LIBCPP___CONCEPTS_CONVERTIBLE_TO_H
+#endif // _LIBCPP___TUPLE_PAIR_LIKE_H

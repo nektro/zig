@@ -113,7 +113,7 @@ LLVMTargetMachineRef ZigLLVMCreateTargetMachine(LLVMTargetRef T, const char *Tri
     const char *CPU, const char *Features, LLVMCodeGenOptLevel Level, LLVMRelocMode Reloc,
     LLVMCodeModel CodeModel, bool function_sections, ZigLLVMABIType float_abi, const char *abi_name)
 {
-    Optional<Reloc::Model> RM;
+    std::optional<Reloc::Model> RM;
     switch (Reloc){
         case LLVMRelocStatic:
             RM = Reloc::Static;
@@ -138,7 +138,7 @@ LLVMTargetMachineRef ZigLLVMCreateTargetMachine(LLVMTargetRef T, const char *Tri
     }
 
     bool JIT;
-    Optional<CodeModel::Model> CM = unwrap(CodeModel, JIT);
+    std::optional<CodeModel::Model> CM = unwrap(CodeModel, JIT);
 
     CodeGenOpt::Level OL;
     switch (Level) {
@@ -432,7 +432,7 @@ LLVMValueRef ZigLLVMBuildCall(LLVMBuilderRef B, LLVMTypeRef Ty, LLVMValueRef Fn,
         const char *Name)
 {
     FunctionType *FTy = unwrap<FunctionType>(Ty);
-    CallInst *call_inst = unwrap(B)->CreateCall(FTy, unwrap(Fn), makeArrayRef(unwrap(Args),
+    CallInst *call_inst = unwrap(B)->CreateCall(FTy, unwrap(Fn), ArrayRef(unwrap(Args),
                 NumArgs), Name);
     call_inst->setCallingConv(static_cast<CallingConv::ID>(CC));
     switch (attr) {
@@ -576,7 +576,7 @@ ZigLLVMDIType *ZigLLVMCreateDebugPointerType(ZigLLVMDIBuilder *dibuilder, ZigLLV
         uint64_t size_in_bits, uint64_t align_in_bits, const char *name)
 {
     DIType *di_type = reinterpret_cast<DIBuilder*>(dibuilder)->createPointerType(
-            reinterpret_cast<DIType*>(pointee_type), size_in_bits, align_in_bits, Optional<unsigned>(), name);
+            reinterpret_cast<DIType*>(pointee_type), size_in_bits, align_in_bits, std::optional<unsigned>(), name);
     return reinterpret_cast<ZigLLVMDIType*>(di_type);
 }
 
@@ -622,7 +622,7 @@ ZigLLVMDIEnumerator *ZigLLVMCreateDebugEnumeratorOfArbitraryPrecision(ZigLLVMDIB
     const char *name, unsigned NumWords, const uint64_t Words[], unsigned int bits, bool isUnsigned)
 {
     DIEnumerator *di_enumerator = reinterpret_cast<DIBuilder*>(dibuilder)->createEnumerator(name,
-        APSInt(APInt(bits, makeArrayRef(Words, NumWords)), isUnsigned));
+        APSInt(APInt(bits, ArrayRef(Words, NumWords)), isUnsigned));
     return reinterpret_cast<ZigLLVMDIEnumerator*>(di_enumerator);
 }
 

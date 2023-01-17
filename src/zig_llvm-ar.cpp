@@ -1481,11 +1481,11 @@ int ZigLlvmAr_main(int argc, char **argv) {
   };
 
   if (Is("dlltool"))
-    return dlltoolDriverMain(makeArrayRef(argv, argc));
+    return dlltoolDriverMain(ArrayRef(argv, argc));
   if (Is("ranlib"))
     return ranlib_main(argc, argv);
   if (Is("lib"))
-    return libDriverMain(makeArrayRef(argv, argc));
+    return libDriverMain(ArrayRef(argv, argc));
   if (Is("ar"))
     return ar_main(argc, argv);
 
