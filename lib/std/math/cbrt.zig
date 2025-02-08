@@ -60,7 +60,7 @@ fn cbrt32(x: f32) f32 {
     r = t * t * t;
     t = t * (@as(f64, x) + x + r) / (x + r + r);
 
-    return @as(f32, @floatCast(t));
+    return @floatCast(t);
 }
 
 fn cbrt64(x: f64) f64 {

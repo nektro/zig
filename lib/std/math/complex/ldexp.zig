@@ -30,7 +30,7 @@ fn frexp_exp32(x: f32, expt: *i32) f32 {
     const hx = @as(u32, @bitCast(exp_x));
     // TODO zig should allow this cast implicitly because it should know the value is in range
     expt.* = @as(i32, @intCast(hx >> 23)) - (0x7f + 127) + k;
-    return @as(f32, @bitCast((hx & 0x7fffff) | ((0x7f + 127) << 23)));
+    return @bitCast((hx & 0x7fffff) | ((0x7f + 127) << 23));
 }
 
 fn ldexp_cexp32(z: Complex(f32), expt: i32) Complex(f32) {
@@ -63,7 +63,7 @@ fn frexp_exp64(x: f64, expt: *i32) f64 {
     expt.* = @as(i32, @intCast(hx >> 20)) - (0x3ff + 1023) + k;
 
     const high_word = (hx & 0xfffff) | ((0x3ff + 1023) << 20);
-    return @as(f64, @bitCast((@as(u64, high_word) << 32) | lx));
+    return @bitCast((@as(u64, high_word) << 32) | lx);
 }
 
 fn ldexp_cexp64(z: Complex(f64), expt: i32) Complex(f64) {

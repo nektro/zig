@@ -2403,8 +2403,8 @@ test "std.zon parse bool" {
 test "std.zon intFromFloatExact" {
     // Valid conversions
     try std.testing.expectEqual(@as(u8, 10), intFromFloatExact(u8, @as(f32, 10.0)).?);
-    try std.testing.expectEqual(@as(i8, -123), intFromFloatExact(i8, @as(f64, @as(f64, -123.0))).?);
-    try std.testing.expectEqual(@as(i16, 45), intFromFloatExact(i16, @as(f128, @as(f128, 45.0))).?);
+    try std.testing.expectEqual(@as(i8, -123), intFromFloatExact(i8, @as(f64, -123.0)).?);
+    try std.testing.expectEqual(@as(i16, 45), intFromFloatExact(i16, @as(f128, 45.0)).?);
 
     // Out of range
     try std.testing.expectEqual(@as(?u4, null), intFromFloatExact(u4, @as(f32, 16.0)));

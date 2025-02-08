@@ -9973,6 +9973,13 @@ fn zirAsNode(sema: *Sema, block: *Block, inst: Zir.Inst.Index) CompileError!Air.
     const inst_data = sema.code.instructions.items(.data)[@intFromEnum(inst)].pl_node;
     const src = block.nodeOffset(inst_data.src_node);
     const extra = sema.code.extraData(Zir.Inst.As, inst_data.payload_index).data;
+
+    // blk: {
+    //     _ = try sema.resolveTypeOrPoison(block, src, zir_ref) orelse break :blk;
+    //     const msg = try sema.errMsg(src, "@as must not have a known result type", .{});
+    //     return sema.failWithOwnedErrorMsg(block, msg);
+    // }
+
     return sema.analyzeAs(block, src, extra.dest_type, extra.operand, false);
 }
 
@@ -10189,7 +10196,7 @@ fn zirIntCast(sema: *Sema, block: *Block, inst: Zir.Inst.Index) CompileError!Air
     const operand_src = block.builtinCallArgSrc(inst_data.src_node, 0);
     const extra = sema.code.extraData(Zir.Inst.Bin, inst_data.payload_index).data;
 
-    const dest_ty = try sema.resolveDestType(block, src, extra.lhs, .remove_eu_opt, "@intCast");
+    const dest_ty = try sema.resolveDestType(block, src, extra.lhs, .remove_eu_opt, "@intCast");//
     const operand = try sema.resolveInst(extra.rhs);
 
     return sema.intCast(block, block.nodeOffset(inst_data.src_node), dest_ty, src, operand, operand_src, true, false);

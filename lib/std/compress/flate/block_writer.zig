@@ -255,12 +255,12 @@ pub fn BlockWriter(comptime WriterType: type) type {
 
             i = 0;
             while (true) {
-                const code_word: u32 = @as(u32, @intCast(self.codegen[i]));
+                const code_word: u32 = @intCast(self.codegen[i]);
                 i += 1;
                 if (code_word == end_code_mark) {
                     break;
                 }
-                try self.writeCode(self.codegen_encoding.codes[@as(u32, @intCast(code_word))]);
+                try self.writeCode(self.codegen_encoding.codes[@intCast(code_word)]);
 
                 switch (code_word) {
                     16 => {

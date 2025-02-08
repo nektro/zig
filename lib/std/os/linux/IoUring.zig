@@ -3062,7 +3062,7 @@ test "provide_buffers: read" {
         try testing.expectEqual(@as(i32, buffer_len), cqe.res);
 
         try testing.expectEqual(@as(u64, 0xdededede), cqe.user_data);
-        try testing.expectEqualSlices(u8, &([_]u8{0} ** buffer_len), buffers[used_buffer_id][0..@as(usize, @intCast(cqe.res))]);
+        try testing.expectEqualSlices(u8, &([_]u8{0} ** buffer_len), buffers[used_buffer_id][0..@intCast(cqe.res)]);
     }
 
     // This read should fail
@@ -3126,7 +3126,7 @@ test "provide_buffers: read" {
         try testing.expectEqual(used_buffer_id, reprovided_buffer_id);
         try testing.expectEqual(@as(i32, buffer_len), cqe.res);
         try testing.expectEqual(@as(u64, 0xdfdfdfdf), cqe.user_data);
-        try testing.expectEqualSlices(u8, &([_]u8{0} ** buffer_len), buffers[used_buffer_id][0..@as(usize, @intCast(cqe.res))]);
+        try testing.expectEqualSlices(u8, &([_]u8{0} ** buffer_len), buffers[used_buffer_id][0..@intCast(cqe.res)]);
     }
 }
 
@@ -3200,7 +3200,7 @@ test "remove_buffers" {
         try testing.expect(used_buffer_id >= 0 and used_buffer_id < 4);
         try testing.expectEqual(@as(i32, buffer_len), cqe.res);
         try testing.expectEqual(@as(u64, 0xdfdfdfdf), cqe.user_data);
-        try testing.expectEqualSlices(u8, &([_]u8{0} ** buffer_len), buffers[used_buffer_id][0..@as(usize, @intCast(cqe.res))]);
+        try testing.expectEqualSlices(u8, &([_]u8{0} ** buffer_len), buffers[used_buffer_id][0..@intCast(cqe.res)]);
     }
 
     // Final read should _not_ work
@@ -3302,7 +3302,7 @@ test "provide_buffers: accept/connect/send/recv" {
         try testing.expectEqual(@as(i32, buffer_len), cqe.res);
 
         try testing.expectEqual(@as(u64, 0xdededede), cqe.user_data);
-        const buffer = buffers[used_buffer_id][0..@as(usize, @intCast(cqe.res))];
+        const buffer = buffers[used_buffer_id][0..@intCast(cqe.res)];
         try testing.expectEqualSlices(u8, &([_]u8{'z'} ** buffer_len), buffer);
     }
 
@@ -3380,7 +3380,7 @@ test "provide_buffers: accept/connect/send/recv" {
         try testing.expectEqual(used_buffer_id, reprovided_buffer_id);
         try testing.expectEqual(@as(i32, buffer_len), cqe.res);
         try testing.expectEqual(@as(u64, 0xdfdfdfdf), cqe.user_data);
-        const buffer = buffers[used_buffer_id][0..@as(usize, @intCast(cqe.res))];
+        const buffer = buffers[used_buffer_id][0..@intCast(cqe.res)];
         try testing.expectEqualSlices(u8, &([_]u8{'w'} ** buffer_len), buffer);
     }
 }

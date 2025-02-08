@@ -98,7 +98,7 @@ fn Hash(comptime endian: std.builtin.Endian, comptime shift_key: bool) type {
                         : [x] "x" (@as(@Vector(2, u64), @bitCast(x))),
                           [y] "x" (@as(@Vector(2, u64), @bitCast(y))),
                     );
-                    return @as(u128, @bitCast(product));
+                    return @bitCast(product);
                 },
                 .lo => {
                     const product = asm (
@@ -107,7 +107,7 @@ fn Hash(comptime endian: std.builtin.Endian, comptime shift_key: bool) type {
                         : [x] "x" (@as(@Vector(2, u64), @bitCast(x))),
                           [y] "x" (@as(@Vector(2, u64), @bitCast(y))),
                     );
-                    return @as(u128, @bitCast(product));
+                    return @bitCast(product);
                 },
                 .hi_lo => {
                     const product = asm (
@@ -116,7 +116,7 @@ fn Hash(comptime endian: std.builtin.Endian, comptime shift_key: bool) type {
                         : [x] "x" (@as(@Vector(2, u64), @bitCast(x))),
                           [y] "x" (@as(@Vector(2, u64), @bitCast(y))),
                     );
-                    return @as(u128, @bitCast(product));
+                    return @bitCast(product);
                 },
             }
         }
@@ -131,7 +131,7 @@ fn Hash(comptime endian: std.builtin.Endian, comptime shift_key: bool) type {
                         : [x] "w" (@as(@Vector(2, u64), @bitCast(x))),
                           [y] "w" (@as(@Vector(2, u64), @bitCast(y))),
                     );
-                    return @as(u128, @bitCast(product));
+                    return @bitCast(product);
                 },
                 .lo => {
                     const product = asm (
@@ -140,7 +140,7 @@ fn Hash(comptime endian: std.builtin.Endian, comptime shift_key: bool) type {
                         : [x] "w" (@as(@Vector(2, u64), @bitCast(x))),
                           [y] "w" (@as(@Vector(2, u64), @bitCast(y))),
                     );
-                    return @as(u128, @bitCast(product));
+                    return @bitCast(product);
                 },
                 .hi_lo => {
                     const product = asm (
@@ -149,7 +149,7 @@ fn Hash(comptime endian: std.builtin.Endian, comptime shift_key: bool) type {
                         : [x] "w" (@as(@Vector(2, u64), @bitCast(x >> 64))),
                           [y] "w" (@as(@Vector(2, u64), @bitCast(y))),
                     );
-                    return @as(u128, @bitCast(product));
+                    return @bitCast(product);
                 },
             }
         }

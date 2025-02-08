@@ -50,7 +50,7 @@ pub fn eqlString(a: []const u8, b: []const u8) bool {
 }
 
 pub fn hashString(s: []const u8) u32 {
-    return @as(u32, @truncate(std.hash.Wyhash.hash(0, s)));
+    return @truncate(std.hash.Wyhash.hash(0, s));
 }
 
 /// Deprecated in favor of `ArrayHashMapWithAllocator` (no code changes needed)
@@ -2083,7 +2083,7 @@ const IndexHeader = struct {
     fn constrainIndex(header: IndexHeader, i: usize) usize {
         // This is an optimization for modulo of power of two integers;
         // it requires `indexes_len` to always be a power of two.
-        return @as(usize, @intCast(i & header.mask()));
+        return @intCast(i & header.mask());
     }
 
     /// Returns the attached array of indexes.  I must match the type
@@ -2105,7 +2105,7 @@ const IndexHeader = struct {
         return @as(usize, 1) << @as(math.Log2Int(usize), @intCast(self.bit_index));
     }
     fn mask(self: IndexHeader) u32 {
-        return @as(u32, @intCast(self.length() - 1));
+        return @intCast(self.length() - 1);
     }
 
     fn findBitIndex(desired_capacity: usize) Allocator.Error!u8 {
@@ -2251,25 +2251,25 @@ test "iterator hash map" {
 
     var count: usize = 0;
     while (it.next()) |entry| : (count += 1) {
-        buffer[@as(usize, @intCast(entry.key_ptr.*))] = entry.value_ptr.*;
+        buffer[@intCast(entry.key_ptr.*)] = entry.value_ptr.*;
     }
     try testing.expect(count == 3);
     try testing.expect(it.next() == null);
 
     for (buffer, 0..) |_, i| {
-        try testing.expect(buffer[@as(usize, @intCast(keys[i]))] == values[i]);
+        try testing.expect(buffer[@intCast(keys[i])] == values[i]);
     }
 
     it.reset();
     count = 0;
     while (it.next()) |entry| {
-        buffer[@as(usize, @intCast(entry.key_ptr.*))] = entry.value_ptr.*;
+        buffer[@intCast(entry.key_ptr.*)] = entry.value_ptr.*;
         count += 1;
         if (count >= 2) break;
     }
 
     for (buffer[0..2], 0..) |_, i| {
-        try testing.expect(buffer[@as(usize, @intCast(keys[i]))] == values[i]);
+        try testing.expect(buffer[@intCast(keys[i])] == values[i]);
     }
 
     it.reset();
@@ -2636,7 +2636,7 @@ pub fn getAutoHashStratFn(comptime K: type, comptime Context: type, comptime str
             _ = ctx;
             var hasher = Wyhash.init(0);
             std.hash.autoHashStrat(&hasher, key, strategy);
-            return @as(u32, @truncate(hasher.final()));
+            return @truncate(hasher.final());
         }
     }.hash;
 }

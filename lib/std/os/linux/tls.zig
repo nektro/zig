@@ -550,7 +550,7 @@ inline fn mmap(address: ?[*]u8, length: usize, prot: usize, flags: linux.MAP, fd
                 length,
                 prot,
                 @as(u32, @bitCast(flags)),
-                @as(usize, @bitCast(@as(isize, fd))),
+                @bitCast(@as(isize, fd)),
                 @as(u64, @bitCast(offset)),
             }),
         }) else @call(.always_inline, linux.syscall6, .{

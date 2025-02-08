@@ -778,7 +778,7 @@ fn mul(a: u8, b: u8) u8 {
         }
     }
 
-    return @as(u8, @truncate(s));
+    return @truncate(s);
 }
 
 const cache_line_bytes = std.atomic.cache_line;

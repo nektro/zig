@@ -629,7 +629,7 @@ test "invNTTReductions bounds" {
             if (j < 0) {
                 break;
             }
-            xs[@as(usize, @intCast(j))] = 1;
+            xs[@intCast(j)] = 1;
         }
     }
 }
@@ -995,7 +995,7 @@ const Poly = struct {
                 if (i < 0) {
                     break;
                 }
-                p.cs[@as(usize, @intCast(i))] = feBarrettReduce(p.cs[@as(usize, @intCast(i))]);
+                p.cs[@intCast(i)] = feBarrettReduce(p.cs[@intCast(i)]);
             }
         }
 

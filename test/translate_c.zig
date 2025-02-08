@@ -2441,8 +2441,8 @@ pub fn addCases(cases: *tests.TranslateCContext) void {
         \\    return array[@as(c_uint, @intCast(index))];
         \\}
         ,
-        \\pub inline fn ACCESS() @TypeOf(array[@as(usize, @intCast(@as(c_int, 2)))]) {
-        \\    return array[@as(usize, @intCast(@as(c_int, 2)))];
+        \\pub inline fn ACCESS() @TypeOf(array[@intCast(@as(c_int, 2))]) {
+        \\    return array[@intCast(@as(c_int, 2))];
         \\}
     });
 
@@ -2472,7 +2472,7 @@ pub fn addCases(cases: *tests.TranslateCContext) void {
         \\    _ = &a;
         \\    var i: c_longlong = 0;
         \\    _ = &i;
-        \\    a[@as(usize, @intCast(i))] = 0;
+        \\    a[@intCast(i)] = 0;
         \\}
     });
 

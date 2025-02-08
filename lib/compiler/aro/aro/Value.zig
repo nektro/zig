@@ -369,7 +369,7 @@ fn bigIntToFloat(limbs: []const std.math.big.Limb, positive: bool) f128 {
     var i: usize = limbs.len;
     while (i != 0) {
         i -= 1;
-        const limb: f128 = @as(f128, @floatFromInt(limbs[i]));
+        const limb: f128 = @floatFromInt(limbs[i]);
         result = @mulAdd(f128, base, result, limb);
     }
     if (positive) {

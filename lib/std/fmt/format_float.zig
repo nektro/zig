@@ -71,7 +71,8 @@ pub fn formatFloat(buf: []u8, v_: anytype, options: FormatOptions) FormatError![
     };
 
     const has_explicit_leading_bit = std.math.floatMantissaBits(T) - std.math.floatFractionalBits(T) != 0;
-    const d = binaryToDecimal(DT, @as(I, @bitCast(v)), std.math.floatMantissaBits(T), std.math.floatExponentBits(T), has_explicit_leading_bit, tables);
+    const i: I = @bitCast(v);
+    const d = binaryToDecimal(DT, i, std.math.floatMantissaBits(T), std.math.floatExponentBits(T), has_explicit_leading_bit, tables);
 
     return switch (options.mode) {
         .scientific => formatScientific(DT, buf, d, options.precision),
@@ -570,7 +571,7 @@ fn multipleOfPowerOf5(value: anytype, p: u32) bool {
 fn multipleOfPowerOf2(value: anytype, p: u32) bool {
     const T = @TypeOf(value);
     std.debug.assert(@typeInfo(T) == .int);
-    return (value & ((@as(T, 1) << @as(std.math.Log2Int(T), @intCast(p))) - 1)) == 0;
+    return (value & ((@as(T, 1) << @intCast(p))) - 1) == 0;
 }
 
 fn mulShift128(m: u128, mul: *const [4]u64, j: u32) u128 {

@@ -222,7 +222,7 @@ pub const W = struct {
     pub const NOWAIT = 0x1000000;
 
     pub fn EXITSTATUS(s: u32) u8 {
-        return @as(u8, @intCast((s & 0xff00) >> 8));
+        return @intCast((s & 0xff00) >> 8);
     }
     pub fn TERMSIG(s: u32) u32 {
         return s & 0x7f;

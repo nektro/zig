@@ -257,7 +257,7 @@ pub fn decodeFrameArrayList(
 /// Returns the frame checksum corresponding to the data fed into `hasher`
 pub fn computeChecksum(hasher: *std.hash.XxHash64) u32 {
     const hash = hasher.final();
-    return @as(u32, @intCast(hash & 0xFFFFFFFF));
+    return @intCast(hash & 0xFFFFFFFF);
 }
 
 const FrameError = error{

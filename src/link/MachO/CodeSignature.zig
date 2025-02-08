@@ -141,7 +141,7 @@ const CodeDirectory = struct {
 
         var i: isize = @as(isize, @intCast(self.inner.nSpecialSlots));
         while (i > 0) : (i -= 1) {
-            try writer.writeAll(&self.special_slots[@as(usize, @intCast(i - 1))]);
+            try writer.writeAll(&self.special_slots[@intCast(i - 1)]);
         }
 
         for (self.code_slots.items) |slot| {

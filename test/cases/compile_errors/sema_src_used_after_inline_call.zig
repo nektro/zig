@@ -10,7 +10,7 @@ inline fn bit_count(value: i32) i32 {
 }
 
 inline fn number_of_trailing_zeros(i: i32) u32 {
-    return @as(u32, bit_count((i & -i) - 1));
+    return bit_count((i & -i) - 1);
 }
 
 export fn entry() void {
@@ -21,6 +21,7 @@ export fn entry() void {
 // backend=stage2
 // target=native
 //
-// :13:30: error: expected type 'u32', found 'i32'
-// :13:30: note: unsigned 32-bit int cannot represent all possible signed 32-bit values
+// :13:21: error: expected type 'u32', found 'i32'
+// :13:21: note: unsigned 32-bit int cannot represent all possible signed 32-bit values
+// :12:44: note: function return type declared here
 // :17:33: note: called from here

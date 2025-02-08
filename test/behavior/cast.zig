@@ -37,7 +37,7 @@ fn peerTypeTAndOptionalT(c: bool, b: bool) ?usize {
         return if (b) null else @as(usize, 0);
     }
 
-    return @as(usize, 3);
+    return 3;
 }
 
 test "resolve undefined with integer" {
@@ -255,7 +255,7 @@ fn MakeType(comptime T: type) type {
         }
 
         fn getNonNull() ?T {
-            return @as(T, undefined);
+            return undefined;
         }
     };
 }
@@ -1233,11 +1233,11 @@ fn testCast128() !void {
 }
 
 fn cast128Int(x: f128) u128 {
-    return @as(u128, @bitCast(x));
+    return @bitCast(x);
 }
 
 fn cast128Float(x: u128) f128 {
-    return @as(f128, @bitCast(x));
+    return @bitCast(x);
 }
 
 test "implicit cast from *[N]T to ?[*]T" {

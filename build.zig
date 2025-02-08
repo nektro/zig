@@ -181,7 +181,7 @@ pub fn build(b: *std.Build) !void {
     const value_tracing = b.option(bool, "value-tracing", "Enable extra state tracking to help troubleshoot bugs in the compiler (using the std.debug.Trace API)") orelse false;
 
     const mem_leak_frames: u32 = b.option(u32, "mem-leak-frames", "How many stack frames to print when a memory leak occurs. Tests get 2x this amount.") orelse blk: {
-        if (strip == true) break :blk @as(u32, 0);
+        if (strip == true) break :blk 0;
         if (optimize != .Debug) break :blk 0;
         break :blk 4;
     };

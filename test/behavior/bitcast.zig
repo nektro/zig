@@ -72,11 +72,11 @@ fn testBitCast(comptime N: usize) !void {
 }
 
 fn conv_iN(comptime N: usize, x: std.meta.Int(.signed, N)) std.meta.Int(.unsigned, N) {
-    return @as(std.meta.Int(.unsigned, N), @bitCast(x));
+    return @bitCast(x);
 }
 
 fn conv_uN(comptime N: usize, x: std.meta.Int(.unsigned, N)) std.meta.Int(.signed, N) {
-    return @as(std.meta.Int(.signed, N), @bitCast(x));
+    return @bitCast(x);
 }
 
 test "bitcast uX to bytes" {
@@ -252,7 +252,7 @@ test "implicit cast to error union by returning" {
             try expect((func(-1) catch unreachable) == maxInt(u64));
         }
         pub fn func(sz: i64) anyerror!u64 {
-            return @as(u64, @bitCast(sz));
+            return @bitCast(sz);
         }
     };
     try S.entry();
@@ -411,16 +411,16 @@ test "bitcast vector to integer and back" {
 }
 
 fn bitCastWrapper16(x: f16) u16 {
-    return @as(u16, @bitCast(x));
+    return @bitCast(x);
 }
 fn bitCastWrapper32(x: f32) u32 {
-    return @as(u32, @bitCast(x));
+    return @bitCast(x);
 }
 fn bitCastWrapper64(x: f64) u64 {
-    return @as(u64, @bitCast(x));
+    return @bitCast(x);
 }
 fn bitCastWrapper128(x: f128) u128 {
-    return @as(u128, @bitCast(x));
+    return @bitCast(x);
 }
 test "bitcast nan float does not modify signaling bit" {
     if (builtin.zig_backend == .stage2_aarch64) return error.SkipZigTest; // TODO

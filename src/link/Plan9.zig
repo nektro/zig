@@ -882,7 +882,7 @@ pub fn flushModule(
                     switch (reloc.type) {
                         .pcrel => {
                             const disp = @as(i32, @intCast(target_offset)) - @as(i32, @intCast(source_atom.offset.?)) - 4 - @as(i32, @intCast(offset));
-                            mem.writeInt(i32, code[@as(usize, @intCast(offset))..][0..4], @as(i32, @intCast(disp)), endian);
+                            mem.writeInt(i32, code[@intCast(offset)..][0..4], @as(i32, @intCast(disp)), endian);
                         },
                         .nonpcrel => {
                             if (!self.sixtyfour_bit) {

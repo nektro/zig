@@ -23,7 +23,7 @@ pub fn eql(comptime T: type, a: T, b: T) bool {
             const s = @typeInfo(C).int.bits;
             const Cu = std.meta.Int(.unsigned, s);
             const Cext = std.meta.Int(.unsigned, s + 1);
-            return @as(bool, @bitCast(@as(u1, @truncate((@as(Cext, @as(Cu, @bitCast(acc))) -% 1) >> s))));
+            return @bitCast(@as(u1, @truncate((@as(Cext, @as(Cu, @bitCast(acc))) -% 1) >> s)));
         },
         .vector => |info| {
             const C = info.child;
@@ -34,7 +34,7 @@ pub fn eql(comptime T: type, a: T, b: T) bool {
             const s = @typeInfo(C).int.bits;
             const Cu = std.meta.Int(.unsigned, s);
             const Cext = std.meta.Int(.unsigned, s + 1);
-            return @as(bool, @bitCast(@as(u1, @truncate((@as(Cext, @as(Cu, @bitCast(acc))) -% 1) >> s))));
+            return @bitCast(@as(u1, @truncate((@as(Cext, @as(Cu, @bitCast(acc))) -% 1) >> s)));
         },
         else => {
             @compileError("Only arrays and vectors can be compared");
@@ -101,7 +101,7 @@ pub fn add(comptime T: type, a: []const T, b: []const T, result: []T, endian: En
             carry = ov1[1] | ov2[1];
         }
     }
-    return @as(bool, @bitCast(carry));
+    return @bitCast(carry);
 }
 
 /// Subtract two integers serialized as arrays of the same size, in constant time.
@@ -128,7 +128,7 @@ pub fn sub(comptime T: type, a: []const T, b: []const T, result: []T, endian: En
             borrow = ov1[1] | ov2[1];
         }
     }
-    return @as(bool, @bitCast(borrow));
+    return @bitCast(borrow);
 }
 
 test eql {

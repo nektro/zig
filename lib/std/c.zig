@@ -95,8 +95,8 @@ pub const timespec = switch (native_os) {
             const sec: wasi.timestamp_t = tm / 1_000_000_000;
             const nsec = tm - sec * 1_000_000_000;
             return .{
-                .sec = @as(time_t, @intCast(sec)),
-                .nsec = @as(isize, @intCast(nsec)),
+                .sec = @intCast(sec),
+                .nsec = @intCast(nsec),
             };
         }
 
@@ -3263,7 +3263,7 @@ pub const W = switch (native_os) {
         pub const UNTRACED = 0x00000002;
 
         pub fn EXITSTATUS(x: u32) u8 {
-            return @as(u8, @intCast(x >> 8));
+            return @intCast(x >> 8);
         }
         pub fn TERMSIG(x: u32) u32 {
             return status(x);
@@ -3296,7 +3296,7 @@ pub const W = switch (native_os) {
         pub const TRAPPED = 32;
 
         pub fn EXITSTATUS(s: u32) u8 {
-            return @as(u8, @intCast((s & 0xff00) >> 8));
+            return @intCast((s & 0xff00) >> 8);
         }
         pub fn TERMSIG(s: u32) u32 {
             return s & 0x7f;
@@ -3324,7 +3324,7 @@ pub const W = switch (native_os) {
         pub const NOWAIT = 0o200;
 
         pub fn EXITSTATUS(s: u32) u8 {
-            return @as(u8, @intCast((s >> 8) & 0xff));
+            return @intCast((s >> 8) & 0xff);
         }
         pub fn TERMSIG(s: u32) u32 {
             return s & 0x7f;
@@ -3358,7 +3358,7 @@ pub const W = switch (native_os) {
         pub const TRAPPED = 0x00000040;
 
         pub fn EXITSTATUS(s: u32) u8 {
-            return @as(u8, @intCast((s >> 8) & 0xff));
+            return @intCast((s >> 8) & 0xff);
         }
         pub fn TERMSIG(s: u32) u32 {
             return s & 0x7f;
@@ -3392,7 +3392,7 @@ pub const W = switch (native_os) {
         pub const TRAPPED = 0x0020;
 
         pub fn EXITSTATUS(s: u32) u8 {
-            return @as(u8, @intCast((s & 0xff00) >> 8));
+            return @intCast((s & 0xff00) >> 8);
         }
         pub fn TERMSIG(s: u32) u32 {
             return s & 0x7f;
@@ -3419,7 +3419,7 @@ pub const W = switch (native_os) {
         pub const NOWAIT = 0x20;
 
         pub fn EXITSTATUS(s: u32) u8 {
-            return @as(u8, @intCast(s & 0xff));
+            return @intCast(s & 0xff);
         }
 
         pub fn TERMSIG(s: u32) u32 {
@@ -3448,7 +3448,7 @@ pub const W = switch (native_os) {
         pub const CONTINUED = 8;
 
         pub fn EXITSTATUS(s: u32) u8 {
-            return @as(u8, @intCast((s >> 8) & 0xff));
+            return @intCast((s >> 8) & 0xff);
         }
         pub fn TERMSIG(s: u32) u32 {
             return (s & 0x7f);

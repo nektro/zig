@@ -64,7 +64,7 @@ pub fn convertEiselLemire(comptime T: type, q: i64, w_: u64) ?BiasedFp(f64) {
 
     const upper_bit = @as(i32, @intCast(r.hi >> 63));
     var mantissa = math.shr(u64, r.hi, upper_bit + 64 - @as(i32, @intCast(float_info.mantissa_explicit_bits)) - 3);
-    var power2 = power(@as(i32, @intCast(q))) + upper_bit - @as(i32, @intCast(lz)) - float_info.minimum_exponent;
+    var power2 = power(@intCast(q)) + upper_bit - @as(i32, @intCast(lz)) - float_info.minimum_exponent;
     if (power2 <= 0) {
         if (-power2 + 1 >= 64) {
             // Have more than 64 bits below the minimum exponent, must be 0.
@@ -139,8 +139,8 @@ const U128 = struct {
     pub fn mul(a: u64, b: u64) U128 {
         const x = @as(u128, a) * b;
         return .{
-            .hi = @as(u64, @truncate(x >> 64)),
-            .lo = @as(u64, @truncate(x)),
+            .hi = @truncate(x >> 64),
+            .lo = @truncate(x),
         };
     }
 };

@@ -20,7 +20,7 @@ test "truncate" {
     comptime assert(testTruncate(0x10fd) == 0xfd);
 }
 fn testTruncate(x: u32) u8 {
-    return @as(u8, @truncate(x));
+    return @truncate(x);
 }
 
 test "truncate to non-power-of-two integers" {

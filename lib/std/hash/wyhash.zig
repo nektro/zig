@@ -131,13 +131,13 @@ pub const Wyhash = struct {
     inline fn read(comptime bytes: usize, data: []const u8) u64 {
         std.debug.assert(bytes <= 8);
         const T = std.meta.Int(.unsigned, 8 * bytes);
-        return @as(u64, std.mem.readInt(T, data[0..bytes], .little));
+        return std.mem.readInt(T, data[0..bytes], .little);
     }
 
     inline fn mum(a: *u64, b: *u64) void {
         const x = @as(u128, a.*) *% b.*;
-        a.* = @as(u64, @truncate(x));
-        b.* = @as(u64, @truncate(x >> 64));
+        a.* = @truncate(x);
+        b.* = @truncate(x >> 64);
     }
 
     inline fn mix(a_: u64, b_: u64) u64 {

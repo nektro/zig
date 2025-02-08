@@ -57,7 +57,7 @@ pub fn pushWithStateAssumeCapacity(buf: []u8, bit_len: *usize, b: u1) void {
 pub fn peekWithState(buf: []const u8, bit_len: usize) u1 {
     const byte_index = (bit_len - 1) >> 3;
     const bit_index = @as(u3, @intCast((bit_len - 1) & 7));
-    return @as(u1, @intCast((buf[byte_index] >> bit_index) & 1));
+    return @intCast((buf[byte_index] >> bit_index) & 1);
 }
 
 /// Standalone function for working with a fixed-size buffer.

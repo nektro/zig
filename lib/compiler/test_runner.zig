@@ -96,7 +96,7 @@ fn mainServer() !void {
                 defer testing.allocator.free(expected_panic_msgs);
 
                 for (test_fns, names, expected_panic_msgs) |test_fn, *name, *expected_panic_msg| {
-                    name.* = @as(u32, @intCast(string_bytes.items.len));
+                    name.* = @intCast(string_bytes.items.len);
                     try string_bytes.ensureUnusedCapacity(testing.allocator, test_fn.name.len + 1);
                     string_bytes.appendSliceAssumeCapacity(test_fn.name);
                     string_bytes.appendAssumeCapacity(0);

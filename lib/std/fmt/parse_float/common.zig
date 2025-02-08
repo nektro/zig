@@ -46,11 +46,11 @@ pub fn BiasedFp(comptime T: type) type {
 
 pub fn floatFromUnsigned(comptime T: type, comptime MantissaT: type, v: MantissaT) T {
     return switch (T) {
-        f16 => @as(f16, @bitCast(@as(u16, @truncate(v)))),
-        f32 => @as(f32, @bitCast(@as(u32, @truncate(v)))),
-        f64 => @as(f64, @bitCast(@as(u64, @truncate(v)))),
-        f80 => @as(f80, @bitCast(@as(u80, @truncate(v)))),
-        f128 => @as(f128, @bitCast(v)),
+        f16 => @bitCast(@as(u16, @truncate(v))),
+        f32 => @bitCast(@as(u32, @truncate(v))),
+        f64 => @bitCast(@as(u64, @truncate(v))),
+        f80 => @bitCast(@as(u80, @truncate(v))),
+        f128 => @bitCast(v),
         else => unreachable,
     };
 }

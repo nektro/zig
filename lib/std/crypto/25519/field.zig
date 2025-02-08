@@ -400,7 +400,7 @@ pub const Fe = struct {
         const t2 = t.sqn(30).mul(t);
         const t3 = t2.sqn(60).mul(t2);
         const t4 = t3.sqn(120).mul(t3).sqn(10).mul(u).sqn(3).mul(_11).sq();
-        return @as(bool, @bitCast(@as(u1, @truncate(~(t4.toBytes()[1] & 1)))));
+        return @bitCast(@as(u1, @truncate(~(t4.toBytes()[1] & 1))));
     }
 
     fn uncheckedSqrt(x2: Fe) Fe {

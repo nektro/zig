@@ -131,7 +131,7 @@ pub fn renderToArrayList(tree: Ast, buffer: *std.ArrayList(u8), fixups: Fixups) 
 /// should point after the token in the error message.
 pub fn errorOffset(tree: Ast, parse_error: Error) u32 {
     return if (parse_error.token_is_prev)
-        @as(u32, @intCast(tree.tokenSlice(parse_error.token).len))
+        @intCast(tree.tokenSlice(parse_error.token).len)
     else
         0;
 }

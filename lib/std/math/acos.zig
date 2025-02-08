@@ -36,7 +36,7 @@ fn acos32(x: f32) f32 {
     const pio2_hi = 1.5707962513e+00;
     const pio2_lo = 7.5497894159e-08;
 
-    const hx: u32 = @as(u32, @bitCast(x));
+    const hx: u32 = @bitCast(x);
     const ix: u32 = hx & 0x7FFFFFFF;
 
     // |x| >= 1 or nan

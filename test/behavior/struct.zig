@@ -1219,7 +1219,7 @@ test "packed struct aggregate init" {
 
     const S = struct {
         fn foo(a: i2, b: i6) u8 {
-            return @as(u8, @bitCast(P{ .a = a, .b = b }));
+            return @bitCast(P{ .a = a, .b = b });
         }
 
         const P = packed struct {

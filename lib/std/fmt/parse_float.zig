@@ -97,7 +97,7 @@ test parseFloat {
         try expectEqual(try parseFloat(T, "1e+5000"), std.math.inf(T));
 
         try expectEqual(try parseFloat(T, "0.4e0066999999999999999999999999999999999999999999999999999"), std.math.inf(T));
-        try expect(approxEqAbs(T, try parseFloat(T, "0_1_2_3_4_5_6.7_8_9_0_0_0e0_0_1_0"), @as(T, 123456.789000e10), epsilon));
+        try expect(approxEqAbs(T, try parseFloat(T, "0_1_2_3_4_5_6.7_8_9_0_0_0e0_0_1_0"), 123456.789000e10, epsilon));
 
         // underscore rule is simple and reduces to "can only occur between two digits" and multiple are not supported.
         try expectError(error.InvalidCharacter, parseFloat(T, "0123456.789000e_0010")); // cannot occur immediately after exponent
@@ -120,9 +120,9 @@ test parseFloat {
         try expectError(error.InvalidCharacter, parseFloat(T, "0.e")); // At least one digit is required.
 
         try expect(approxEqAbs(T, try parseFloat(T, "123142.1"), 123142.1, epsilon));
-        try expect(approxEqAbs(T, try parseFloat(T, "-123142.1124"), @as(T, -123142.1124), epsilon));
-        try expect(approxEqAbs(T, try parseFloat(T, "0.7062146892655368"), @as(T, 0.7062146892655368), epsilon));
-        try expect(approxEqAbs(T, try parseFloat(T, "2.71828182845904523536"), @as(T, 2.718281828459045), epsilon));
+        try expect(approxEqAbs(T, try parseFloat(T, "-123142.1124"), -123142.1124, epsilon));
+        try expect(approxEqAbs(T, try parseFloat(T, "0.7062146892655368"), 0.7062146892655368, epsilon));
+        try expect(approxEqAbs(T, try parseFloat(T, "2.71828182845904523536"), 2.718281828459045, epsilon));
     }
 }
 

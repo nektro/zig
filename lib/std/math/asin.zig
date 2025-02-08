@@ -36,7 +36,7 @@ fn r32(z: f32) f32 {
 fn asin32(x: f32) f32 {
     const pio2 = 1.570796326794896558e+00;
 
-    const hx: u32 = @as(u32, @bitCast(x));
+    const hx: u32 = @bitCast(x);
     const ix: u32 = hx & 0x7FFFFFFF;
 
     // |x| >= 1

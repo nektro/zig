@@ -7,7 +7,7 @@ const expectEqual = std.testing.expectEqual;
 test "compile time recursion" {
     try expect(some_data.len == 21);
 }
-var some_data: [@as(usize, @intCast(fibonacci(7)))]u8 = undefined;
+var some_data: [@intCast(fibonacci(7))]u8 = undefined;
 fn fibonacci(x: i32) i32 {
     if (x <= 1) return 1;
     return fibonacci(x - 1) + fibonacci(x - 2);

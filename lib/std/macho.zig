@@ -790,7 +790,7 @@ pub const section_64 = extern struct {
     }
 
     pub fn @"type"(sect: section_64) u8 {
-        return @as(u8, @truncate(sect.flags & 0xff));
+        return @truncate(sect.flags & 0xff);
     }
 
     pub fn attrs(sect: section_64) u32 {

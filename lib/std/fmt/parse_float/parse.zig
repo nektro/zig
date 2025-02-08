@@ -12,7 +12,7 @@ const Number = common.Number;
 ///
 /// This is based off the algorithm described in "Fast numeric string to
 /// int", available here: <https://johnnylee-sde.github.io/Fast-numeric-string-to-int/>.
-fn parse8Digits(v_: u64) u64 {
+fn parse8Digits(v_: u64) u32 {
     var v = v_;
     const mask = 0x0000_00ff_0000_00ff;
     const mul1 = 0x000f_4240_0000_0064;
@@ -21,7 +21,7 @@ fn parse8Digits(v_: u64) u64 {
     v = (v * 10) + (v >> 8); // will not overflow, fits in 63 bits
     const v1 = (v & mask) *% mul1;
     const v2 = ((v >> 16) & mask) *% mul2;
-    return @as(u64, @as(u32, @truncate((v1 +% v2) >> 32)));
+    return @truncate((v1 +% v2) >> 32);
 }
 
 /// Parse digits until a non-digit character is found.
@@ -117,7 +117,7 @@ fn parsePartialNumberBase(comptime T: type, stream: *FloatStream, negative: bool
         tryParseDigits(MantissaT, stream, &mantissa, info.base);
         const n_after_dot = stream.offsetTrue() - marker;
         exponent = -@as(i64, @intCast(n_after_dot));
-        n_digits += @as(isize, @intCast(n_after_dot));
+        n_digits += @intCast(n_after_dot);
     }
 
     // adjust required shift to offset mantissa for base-16 (2^4)
@@ -162,7 +162,7 @@ fn parsePartialNumberBase(comptime T: type, stream: *FloatStream, negative: bool
         // '0' = '.' + 2
         const next = stream.firstUnchecked();
         if (next != '_') {
-            n_digits -= @as(isize, @intCast(next -| ('0' - 1)));
+            n_digits -= @intCast(next -| ('0' - 1));
         } else {
             stream.underscore_count += 1;
         }

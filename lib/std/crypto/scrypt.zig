@@ -313,7 +313,7 @@ const crypt_format = struct {
     pub fn calcSize(params: anytype) usize {
         var buf = io.countingWriter(io.null_writer);
         serializeTo(params, buf.writer()) catch unreachable;
-        return @as(usize, @intCast(buf.bytes_written));
+        return @intCast(buf.bytes_written);
     }
 
     fn serializeTo(params: anytype, out: anytype) !void {

@@ -90,9 +90,9 @@ pub const EnvMap = struct {
                 while (it.nextCodepoint()) |cp| {
                     const cp_upper = upcase(cp);
                     h.update(&[_]u8{
-                        @as(u8, @intCast((cp_upper >> 16) & 0xff)),
-                        @as(u8, @intCast((cp_upper >> 8) & 0xff)),
-                        @as(u8, @intCast((cp_upper >> 0) & 0xff)),
+                        @intCast((cp_upper >> 16) & 0xff),
+                        @intCast((cp_upper >> 8) & 0xff),
+                        @intCast((cp_upper >> 0) & 0xff),
                     });
                 }
                 return h.final();

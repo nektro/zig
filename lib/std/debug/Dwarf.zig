@@ -2089,7 +2089,7 @@ fn readEhPointer(fbr: *FixedBufferReader, enc: u8, addr_size_bytes: u8, ctx: EhP
         // absptr can actually contain signed values in some cases (aarch64 MachO)
         .unsigned => |u| u +% b,
     } else switch (value) {
-        .signed => |s| @as(u64, @intCast(s)),
+        .signed => |s| @intCast(s),
         .unsigned => |u| u,
     };
 

@@ -829,7 +829,7 @@ const ct_protected = struct {
     fn eql(x: anytype, y: @TypeOf(x)) bool {
         const c1 = @subWithOverflow(x, y)[1];
         const c2 = @subWithOverflow(y, x)[1];
-        return @as(bool, @bitCast(1 - (c1 | c2)));
+        return @bitCast(1 - (c1 | c2));
     }
 
     // Compares two big integers in constant time, returning true if x < y.

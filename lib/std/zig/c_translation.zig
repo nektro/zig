@@ -311,7 +311,7 @@ test "promoteIntLiteral" {
 /// See https://clang.llvm.org/docs/LanguageExtensions.html#langext-builtin-shufflevector
 pub fn shuffleVectorIndex(comptime this_index: c_int, comptime source_vector_len: usize) i32 {
     const positive_index = std.math.cast(usize, this_index) orelse return undefined;
-    if (positive_index < source_vector_len) return @as(i32, @intCast(this_index));
+    if (positive_index < source_vector_len) return @intCast(this_index);
     const b_index = positive_index - source_vector_len;
     return ~@as(i32, @intCast(b_index));
 }
@@ -407,7 +407,7 @@ pub const Macros = struct {
     }
 
     pub fn F_SUFFIX(comptime f: comptime_float) f32 {
-        return @as(f32, f);
+        return f;
     }
 
     pub fn WL_CONTAINER_OF(ptr: anytype, sample: anytype, comptime member: []const u8) @TypeOf(sample) {

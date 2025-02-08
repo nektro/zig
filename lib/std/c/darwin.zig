@@ -1024,7 +1024,7 @@ pub const SYSPROTO_CONTROL = 2;
 pub const mach_msg_return_t = kern_return_t;
 
 pub fn getMachMsgError(err: mach_msg_return_t) MachMsgE {
-    return @as(MachMsgE, @enumFromInt(@as(u32, @truncate(@as(usize, @intCast(err))))));
+    return @enumFromInt(@as(u32, @truncate(@as(usize, @intCast(err)))));
 }
 
 /// All special error code bits defined below.

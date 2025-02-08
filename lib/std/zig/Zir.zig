@@ -3589,7 +3589,7 @@ pub const Inst = struct {
     };
 
     /// A f128 value, broken up into 4 u32 parts.
-    pub const Float128 = struct {
+    pub const Float128 = packed struct {
         piece0: u32,
         piece1: u32,
         piece2: u32,
@@ -3600,7 +3600,7 @@ pub const Inst = struct {
                 (@as(u128, self.piece1) << 32) |
                 (@as(u128, self.piece2) << 64) |
                 (@as(u128, self.piece3) << 96);
-            return @as(f128, @bitCast(int_bits));
+            return @bitCast(int_bits);
         }
     };
 

@@ -35,7 +35,7 @@ fn elseIfExpressionF(c: u8) u8 {
     } else if (c == 1) {
         return 1;
     } else {
-        return @as(u8, 2);
+        return 2;
     }
 }
 

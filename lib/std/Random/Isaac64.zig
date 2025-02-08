@@ -37,10 +37,10 @@ fn step(self: *Isaac64, mix: u64, base: usize, comptime m1: usize, comptime m2: 
     const x = self.m[base + m1];
     self.a = mix +% self.m[base + m2];
 
-    const y = self.a +% self.b +% self.m[@as(usize, @intCast((x >> 3) % self.m.len))];
+    const y = self.a +% self.b +% self.m[@intCast((x >> 3) % self.m.len)];
     self.m[base + m1] = y;
 
-    self.b = x +% self.m[@as(usize, @intCast((y >> 11) % self.m.len))];
+    self.b = x +% self.m[@intCast((y >> 11) % self.m.len)];
     self.r[self.r.len - 1 - base - m1] = self.b;
 }
 

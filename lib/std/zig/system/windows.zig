@@ -38,7 +38,7 @@ pub fn detectRuntimeVersion() WindowsVersion {
             if (version_info.dwBuildNumber >= build)
                 last_idx = i;
         }
-        break :subver @as(u8, @truncate(last_idx));
+        break :subver @truncate(last_idx);
     } else 0;
 
     const version: u32 = @as(u32, os_ver) << 16 | @as(u16, sp_ver) << 8 | sub_ver;

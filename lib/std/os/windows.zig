@@ -1194,7 +1194,7 @@ pub fn SetFilePointerEx_CURRENT_get(handle: HANDLE) SetFilePointerError!u64 {
     }
     // Based on the docs for FILE_BEGIN, it seems that the returned signed integer
     // should be interpreted as an unsigned integer.
-    return @as(u64, @bitCast(result));
+    return @bitCast(result);
 }
 
 pub const QueryObjectNameError = error{
@@ -1512,7 +1512,7 @@ pub fn GetFileSizeEx(hFile: HANDLE) GetFileSizeError!u64 {
             else => |err| return unexpectedError(err),
         }
     }
-    return @as(u64, @bitCast(file_size));
+    return @bitCast(file_size);
 }
 
 pub const GetFileAttributesError = error{
@@ -1677,7 +1677,7 @@ pub fn sendmsg(
     if (ws2_32.WSASendMsg(s, msg, flags, &bytes_send, null, null) == ws2_32.SOCKET_ERROR) {
         return ws2_32.SOCKET_ERROR;
     } else {
-        return @as(i32, @as(u31, @intCast(bytes_send)));
+        return @as(u31, @intCast(bytes_send));
     }
 }
 
@@ -1687,7 +1687,7 @@ pub fn sendto(s: ws2_32.SOCKET, buf: [*]const u8, len: usize, flags: u32, to: ?*
     if (ws2_32.WSASendTo(s, @as([*]ws2_32.WSABUF, @ptrCast(&buffer)), 1, &bytes_send, flags, to, @as(i32, @intCast(to_len)), null, null) == ws2_32.SOCKET_ERROR) {
         return ws2_32.SOCKET_ERROR;
     } else {
-        return @as(i32, @as(u31, @intCast(bytes_send)));
+        return @as(u31, @intCast(bytes_send));
     }
 }
 
@@ -1698,7 +1698,7 @@ pub fn recvfrom(s: ws2_32.SOCKET, buf: [*]u8, len: usize, flags: u32, from: ?*ws
     if (ws2_32.WSARecvFrom(s, @as([*]ws2_32.WSABUF, @ptrCast(&buffer)), 1, &bytes_received, &flags_inout, from, @as(?*i32, @ptrCast(from_len)), null, null) == ws2_32.SOCKET_ERROR) {
         return ws2_32.SOCKET_ERROR;
     } else {
-        return @as(i32, @as(u31, @intCast(bytes_received)));
+        return @as(u31, @intCast(bytes_received));
     }
 }
 
@@ -2000,7 +2000,7 @@ pub fn QueryPerformanceFrequency() u64 {
     var result: LARGE_INTEGER = undefined;
     assert(ntdll.RtlQueryPerformanceFrequency(&result) != 0);
     // The kernel treats this integer as unsigned.
-    return @as(u64, @bitCast(result));
+    return @bitCast(result);
 }
 
 pub fn QueryPerformanceCounter() u64 {
@@ -2009,7 +2009,7 @@ pub fn QueryPerformanceCounter() u64 {
     var result: LARGE_INTEGER = undefined;
     assert(ntdll.RtlQueryPerformanceCounter(&result) != 0);
     // The kernel treats this integer as unsigned.
-    return @as(u64, @bitCast(result));
+    return @bitCast(result);
 }
 
 pub fn InitOnceExecuteOnce(InitOnce: *INIT_ONCE, InitFn: INIT_ONCE_FN, Parameter: ?*anyopaque, Context: ?*anyopaque) void {
@@ -2351,7 +2351,7 @@ pub fn normalizePath(comptime T: type, path: []T) RemoveDotDirsError!usize {
     const prefix_len: usize = init: {
         if (new_len >= 1 and path[0] == '\\') break :init 1;
         if (new_len >= 2 and path[1] == ':')
-            break :init if (new_len >= 3 and path[2] == '\\') @as(usize, 3) else @as(usize, 2);
+            break :init if (new_len >= 3 and path[2] == '\\') 3 else 2;
         break :init 0;
     };
 

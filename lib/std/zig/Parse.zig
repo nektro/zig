@@ -1682,7 +1682,7 @@ fn parseExprPrecedence(p: *Parse, min_prec: i32) Error!Node.Index {
 
     while (true) {
         const tok_tag = p.token_tags[p.tok_i];
-        const info = operTable[@as(usize, @intCast(@intFromEnum(tok_tag)))];
+        const info = operTable[@intCast(@intFromEnum(tok_tag))];
         if (info.prec < min_prec) {
             break;
         }

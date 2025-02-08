@@ -492,7 +492,7 @@ fn testSegmentedList(comptime prealloc: usize) !void {
         var i: i32 = 0;
         while (i < 100) : (i += 1) {
             try list.append(testing.allocator, i + 1);
-            control[@as(usize, @intCast(i))] = i + 1;
+            control[@intCast(i)] = i + 1;
         }
 
         @memset(dest[0..], 0);

@@ -2034,7 +2034,7 @@ pub fn writeVarPackedInt(bytes: []u8, bit_offset: usize, bit_count: usize, value
     if (@bitSizeOf(T) > 8) {
         const loop_end = start + delta * (@as(isize, @intCast(write_size)) - 1);
         while (i != loop_end) : (i += delta) {
-            write_bytes[@as(usize, @intCast(i))] = @as(u8, @truncate(@as(uN, @bitCast(remaining))));
+            write_bytes[@intCast(i)] = @as(u8, @truncate(@as(uN, @bitCast(remaining))));
             remaining >>= 8;
         }
     }
@@ -2042,8 +2042,8 @@ pub fn writeVarPackedInt(bytes: []u8, bit_offset: usize, bit_count: usize, value
     // Write last byte, using a mask to protect bits following bit_offset + bit_count
     const following_bits = -%@as(u3, @truncate(bit_shift + bit_count));
     const tail_mask = (@as(u8, 0xff) << following_bits) >> following_bits;
-    write_bytes[@as(usize, @intCast(i))] &= ~tail_mask;
-    write_bytes[@as(usize, @intCast(i))] |= @as(u8, @intCast(@as(uN, @bitCast(remaining)) & tail_mask));
+    write_bytes[@intCast(i)] &= ~tail_mask;
+    write_bytes[@intCast(i)] |= @as(u8, @intCast(@as(uN, @bitCast(remaining)) & tail_mask));
 }
 
 test writeVarPackedInt {

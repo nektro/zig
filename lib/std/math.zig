@@ -1714,7 +1714,7 @@ test boolMask {
 
 /// Return the mod of `num` with the smallest integer type
 pub fn comptimeMod(num: anytype, comptime denom: comptime_int) IntFittingRange(0, denom - 1) {
-    return @as(IntFittingRange(0, denom - 1), @intCast(@mod(num, denom)));
+    return @intCast(@mod(num, denom));
 }
 
 pub const F80 = struct {
@@ -1723,14 +1723,14 @@ pub const F80 = struct {
 
     pub fn toFloat(self: F80) f80 {
         const int = (@as(u80, self.exp) << 64) | self.fraction;
-        return @as(f80, @bitCast(int));
+        return @bitCast(int);
     }
 
     pub fn fromFloat(x: f80) F80 {
         const int = @as(u80, @bitCast(x));
         return .{
-            .fraction = @as(u64, @truncate(int)),
-            .exp = @as(u16, @truncate(int >> 64)),
+            .fraction = @truncate(int),
+            .exp = @truncate(int >> 64),
         };
     }
 };

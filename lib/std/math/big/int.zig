@@ -30,7 +30,7 @@ pub fn calcLimbLen(scalar: anytype) usize {
     }
 
     const w_value = @abs(scalar);
-    return @as(usize, @intCast(@divFloor(@as(Limb, @intCast(math.log2(w_value))), limb_bits) + 1));
+    return @intCast(@divFloor(@as(Limb, @intCast(math.log2(w_value))), limb_bits) + 1);
 }
 
 pub fn calcToStringLimbsBufferLen(a_len: usize, base: u8) usize {

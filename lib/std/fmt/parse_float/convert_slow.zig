@@ -59,7 +59,7 @@ pub fn convertSlow(comptime T: type, s: []const u8) BiasedFp(T) {
         if (d.decimal_point < -Decimal(T).decimal_point_range) {
             return BiasedFp(T).zero();
         }
-        exp2 += @as(i32, @intCast(shift));
+        exp2 += @intCast(shift);
     }
     //  Shift left toward (1/2 .. 1]
     while (d.decimal_point <= 0) {
@@ -79,7 +79,7 @@ pub fn convertSlow(comptime T: type, s: []const u8) BiasedFp(T) {
         if (d.decimal_point > Decimal(T).decimal_point_range) {
             return BiasedFp(T).inf(T);
         }
-        exp2 -= @as(i32, @intCast(shift));
+        exp2 -= @intCast(shift);
     }
     // We are now in the range [1/2 .. 1] but the binary format uses [1 .. 2]
     exp2 -= 1;
@@ -89,7 +89,7 @@ pub fn convertSlow(comptime T: type, s: []const u8) BiasedFp(T) {
             n = max_shift;
         }
         d.rightShift(n);
-        exp2 += @as(i32, @intCast(n));
+        exp2 += @intCast(n);
     }
     if (exp2 - min_exponent >= infinite_power) {
         return BiasedFp(T).inf(T);

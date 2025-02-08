@@ -121,7 +121,7 @@ pub fn Decimal(comptime T: type) type {
             while (i < dp) : (i += 1) {
                 n *= 10;
                 if (i < self.num_digits) {
-                    n += @as(MantissaT, self.digits[i]);
+                    n += self.digits[i];
                 }
             }
 
@@ -155,7 +155,7 @@ pub fn Decimal(comptime T: type) type {
                 const quotient = n / 10;
                 const remainder = n - (10 * quotient);
                 if (write_index < max_digits) {
-                    self.digits[write_index] = @as(u8, @intCast(remainder));
+                    self.digits[write_index] = @intCast(remainder);
                 } else if (remainder > 0) {
                     self.truncated = true;
                 }
@@ -167,7 +167,7 @@ pub fn Decimal(comptime T: type) type {
                 const quotient = n / 10;
                 const remainder = n - (10 * quotient);
                 if (write_index < max_digits) {
-                    self.digits[write_index] = @as(u8, @intCast(remainder));
+                    self.digits[write_index] = @intCast(remainder);
                 } else if (remainder > 0) {
                     self.truncated = true;
                 }
@@ -178,7 +178,7 @@ pub fn Decimal(comptime T: type) type {
             if (self.num_digits > max_digits) {
                 self.num_digits = max_digits;
             }
-            self.decimal_point += @as(i32, @intCast(num_new_digits));
+            self.decimal_point += @intCast(num_new_digits);
             self.trim();
         }
 
@@ -284,9 +284,9 @@ pub fn Decimal(comptime T: type) type {
                     i -= 1;
                     if (i == 0) break;
                 }
-                d.decimal_point += @as(i32, @intCast(n_trailing_zeros));
+                d.decimal_point += @intCast(n_trailing_zeros);
                 d.num_digits -= n_trailing_zeros;
-                d.decimal_point += @as(i32, @intCast(d.num_digits));
+                d.decimal_point += @intCast(d.num_digits);
                 if (d.num_digits > max_digits) {
                     d.truncated = true;
                     d.num_digits = max_digits;

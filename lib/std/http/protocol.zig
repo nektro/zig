@@ -268,21 +268,21 @@ pub const HeadersParser = struct {
 };
 
 inline fn int16(array: *const [2]u8) u16 {
-    return @as(u16, @bitCast(array.*));
+    return @bitCast(array.*);
 }
 
 inline fn int24(array: *const [3]u8) u24 {
-    return @as(u24, @bitCast(array.*));
+    return @bitCast(array.*);
 }
 
 inline fn int32(array: *const [4]u8) u32 {
-    return @as(u32, @bitCast(array.*));
+    return @bitCast(array.*);
 }
 
 inline fn intShift(comptime T: type, x: anytype) T {
     switch (@import("builtin").cpu.arch.endian()) {
-        .little => return @as(T, @truncate(x >> (@bitSizeOf(@TypeOf(x)) - @bitSizeOf(T)))),
-        .big => return @as(T, @truncate(x)),
+        .little => return @truncate(x >> (@bitSizeOf(@TypeOf(x)) - @bitSizeOf(T))),
+        .big => return @truncate(x),
     }
 }
 

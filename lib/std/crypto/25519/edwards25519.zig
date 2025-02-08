@@ -238,9 +238,9 @@ pub const Edwards25519 = struct {
         while (true) : (pos -= 1) {
             const slot = e[pos];
             if (slot > 0) {
-                q = q.add(pc[@as(usize, @intCast(slot))]);
+                q = q.add(pc[@intCast(slot)]);
             } else if (slot < 0) {
-                q = q.sub(pc[@as(usize, @intCast(-slot))]);
+                q = q.sub(pc[@intCast(-slot)]);
             }
             if (pos == 0) break;
             q = q.dbl().dbl().dbl().dbl();
@@ -331,15 +331,15 @@ pub const Edwards25519 = struct {
         while (true) : (pos -= 1) {
             const slot1 = e1[pos];
             if (slot1 > 0) {
-                q = q.add(pc1[@as(usize, @intCast(slot1))]);
+                q = q.add(pc1[@intCast(slot1)]);
             } else if (slot1 < 0) {
-                q = q.sub(pc1[@as(usize, @intCast(-slot1))]);
+                q = q.sub(pc1[@intCast(-slot1)]);
             }
             const slot2 = e2[pos];
             if (slot2 > 0) {
-                q = q.add(pc2[@as(usize, @intCast(slot2))]);
+                q = q.add(pc2[@intCast(slot2)]);
             } else if (slot2 < 0) {
-                q = q.sub(pc2[@as(usize, @intCast(-slot2))]);
+                q = q.sub(pc2[@intCast(-slot2)]);
             }
             if (pos == 0) break;
             q = q.dbl().dbl().dbl().dbl();
@@ -374,9 +374,9 @@ pub const Edwards25519 = struct {
             for (es, 0..) |e, i| {
                 const slot = e[pos];
                 if (slot > 0) {
-                    q = q.add(pcs[i][@as(usize, @intCast(slot))]);
+                    q = q.add(pcs[i][@intCast(slot)]);
                 } else if (slot < 0) {
-                    q = q.sub(pcs[i][@as(usize, @intCast(-slot))]);
+                    q = q.sub(pcs[i][@intCast(-slot)]);
                 }
             }
             if (pos == 0) break;

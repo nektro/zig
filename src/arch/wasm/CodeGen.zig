@@ -5165,14 +5165,14 @@ fn airShuffle(cg: *CodeGen, inst: Air.Inst.Index) InnerError!void {
         } ++ [1]u32{undefined} ** 4;
 
         var lanes = mem.asBytes(operands[1..]);
-        for (0..@as(usize, @intCast(mask_len))) |index| {
+        for (0..@intCast(mask_len)) |index| {
             const mask_elem = (try mask.elemValue(pt, index)).toSignedInt(zcu);
             const base_index = if (mask_elem >= 0)
                 @as(u8, @intCast(@as(i64, @intCast(elem_size)) * mask_elem))
             else
                 16 + @as(u8, @intCast(@as(i64, @intCast(elem_size)) * ~mask_elem));
 
-            for (0..@as(usize, @intCast(elem_size))) |byte_offset| {
+            for (0..@intCast(elem_size)) |byte_offset| {
                 lanes[index * @as(usize, @intCast(elem_size)) + byte_offset] = base_index + @as(u8, @intCast(byte_offset));
             }
         }

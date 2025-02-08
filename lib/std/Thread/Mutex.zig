@@ -226,7 +226,7 @@ const NonAtomicCounter = struct {
     value: [2]u64 = [_]u64{ 0, 0 },
 
     fn get(self: NonAtomicCounter) u128 {
-        return @as(u128, @bitCast(self.value));
+        return @bitCast(self.value);
     }
 
     fn inc(self: *NonAtomicCounter) void {

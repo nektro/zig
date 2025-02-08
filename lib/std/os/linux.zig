@@ -550,27 +550,27 @@ fn errnoFromSyscall(r: usize) E {
 }
 
 pub fn dup(old: i32) usize {
-    return syscall1(.dup, @as(usize, @bitCast(@as(isize, old))));
+    return syscall1(.dup, @bitCast(@as(isize, old)));
 }
 
 pub fn dup2(old: i32, new: i32) usize {
     if (@hasField(SYS, "dup2")) {
-        return syscall2(.dup2, @as(usize, @bitCast(@as(isize, old))), @as(usize, @bitCast(@as(isize, new))));
+        return syscall2(.dup2, @bitCast(@as(isize, old)), @bitCast(@as(isize, new)));
     } else {
         if (old == new) {
             if (std.debug.runtime_safety) {
                 const rc = fcntl(F.GETFD, @as(fd_t, old), 0);
                 if (@as(isize, @bitCast(rc)) < 0) return rc;
             }
-            return @as(usize, @intCast(old));
+            return @intCast(old);
         } else {
-            return syscall3(.dup3, @as(usize, @bitCast(@as(isize, old))), @as(usize, @bitCast(@as(isize, new))), 0);
+            return syscall3(.dup3, @bitCast(@as(isize, old)), @bitCast(@as(isize, new)), 0);
         }
     }
 }
 
 pub fn dup3(old: i32, new: i32, flags: u32) usize {
-    return syscall3(.dup3, @as(usize, @bitCast(@as(isize, old))), @as(usize, @bitCast(@as(isize, new))), flags);
+    return syscall3(.dup3, @bitCast(@as(isize, old)), @bitCast(@as(isize, new)), flags);
 }
 
 pub fn chdir(path: [*:0]const u8) usize {
@@ -578,7 +578,7 @@ pub fn chdir(path: [*:0]const u8) usize {
 }
 
 pub fn fchdir(fd: fd_t) usize {
-    return syscall1(.fchdir, @as(usize, @bitCast(@as(isize, fd))));
+    return syscall1(.fchdir, @bitCast(@as(isize, fd)));
 }
 
 pub fn chroot(path: [*:0]const u8) usize {
@@ -1509,15 +1509,15 @@ fn init_vdso_clock_gettime(clk: clockid_t, ts: *timespec) callconv(.c) usize {
     @atomicStore(?VdsoClockGettime, &vdso_clock_gettime, ptr, .monotonic);
     // Call into the VDSO if available
     if (ptr) |f| return f(clk, ts);
-    return @as(usize, @bitCast(-@as(isize, @intFromEnum(E.NOSYS))));
+    return @bitCast(-@as(isize, @intFromEnum(E.NOSYS)));
 }
 
 pub fn clock_getres(clk_id: i32, tp: *timespec) usize {
-    return syscall2(.clock_getres, @as(usize, @bitCast(@as(isize, clk_id))), @intFromPtr(tp));
+    return syscall2(.clock_getres, @bitCast(@as(isize, clk_id)), @intFromPtr(tp));
 }
 
 pub fn clock_settime(clk_id: i32, tp: *const timespec) usize {
-    return syscall2(.clock_settime, @as(usize, @bitCast(@as(isize, clk_id))), @intFromPtr(tp));
+    return syscall2(.clock_settime, @bitCast(@as(isize, clk_id)), @intFromPtr(tp));
 }
 
 pub fn clock_nanosleep(clockid: clockid_t, flags: TIMER, request: *const timespec, remain: ?*timespec) usize {
@@ -3309,7 +3309,7 @@ pub const W = struct {
     pub const NOWAIT = 0x1000000;
 
     pub fn EXITSTATUS(s: u32) u8 {
-        return @as(u8, @intCast((s & 0xff00) >> 8));
+        return @intCast((s & 0xff00) >> 8);
     }
     pub fn TERMSIG(s: u32) u32 {
         return s & 0x7f;

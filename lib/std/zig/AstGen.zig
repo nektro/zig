@@ -9107,6 +9107,7 @@ fn as(
     rhs: Ast.Node.Index,
 ) InnerError!Zir.Inst.Ref {
     const dest_type = try typeExpr(gz, scope, lhs);
+    if (try ri.rl.resultType(gz, node)) |r_type| if (r_type == dest_type) return gz.astgen.failNode(node, "@as must not have a redundant result type", .{});
     const result = try reachableExpr(gz, scope, .{ .rl = .{ .ty = dest_type } }, rhs, node);
     return rvalue(gz, ri, result, node);
 }
