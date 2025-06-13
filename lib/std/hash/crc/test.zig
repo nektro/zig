@@ -10,6 +10,7 @@ test "crc32 ieee regression" {
     try testing.expectEqual(crc32.hash(""), 0x00000000);
     try testing.expectEqual(crc32.hash("a"), 0xe8b7be43);
     try testing.expectEqual(crc32.hash("abc"), 0x352441c2);
+    try testing.expectEqual(crc32.hashv(&.{ "a", "b", "c" }), 0x352441c2);
 }
 
 test "crc32 castagnoli regression" {
@@ -17,6 +18,7 @@ test "crc32 castagnoli regression" {
     try testing.expectEqual(crc32.hash(""), 0x00000000);
     try testing.expectEqual(crc32.hash("a"), 0xc1d04330);
     try testing.expectEqual(crc32.hash("abc"), 0x364b3fb7);
+    try testing.expectEqual(crc32.hashv(&.{ "a", "bc" }), 0x364b3fb7);
 }
 
 test "crc32 koopman regression" {
@@ -24,6 +26,7 @@ test "crc32 koopman regression" {
     try testing.expectEqual(crc32.hash(""), 0x00000000);
     try testing.expectEqual(crc32.hash("a"), 0x0da2aa8a);
     try testing.expectEqual(crc32.hash("abc"), 0xba2322ac);
+    try testing.expectEqual(crc32.hashv(&.{"abc"}), 0xba2322ac);
 }
 
 test "CRC-3/GSM" {

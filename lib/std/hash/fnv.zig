@@ -37,6 +37,12 @@ fn Fnv1a(comptime T: type, comptime prime: T, comptime offset: T) type {
             c.update(input);
             return c.final();
         }
+
+        pub fn hashv(input: []const []const u8) T {
+            var c = Self.init();
+            for (input) |x| c.update(x);
+            return c.final();
+        }
     };
 }
 
@@ -46,6 +52,7 @@ test "fnv1a-32" {
     try testing.expect(Fnv1a_32.hash("") == 0x811c9dc5);
     try testing.expect(Fnv1a_32.hash("a") == 0xe40c292c);
     try testing.expect(Fnv1a_32.hash("foobar") == 0xbf9cf968);
+    try testing.expect(Fnv1a_32.hashv(&.{ "foo", "bar" }) == 0xbf9cf968);
     try verify.iterativeApi(Fnv1a_32);
 }
 
@@ -53,11 +60,13 @@ test "fnv1a-64" {
     try testing.expect(Fnv1a_64.hash("") == 0xcbf29ce484222325);
     try testing.expect(Fnv1a_64.hash("a") == 0xaf63dc4c8601ec8c);
     try testing.expect(Fnv1a_64.hash("foobar") == 0x85944171f73967e8);
+    try testing.expect(Fnv1a_64.hashv(&.{ "fo", "obar" }) == 0x85944171f73967e8);
     try verify.iterativeApi(Fnv1a_64);
 }
 
 test "fnv1a-128" {
     try testing.expect(Fnv1a_128.hash("") == 0x6c62272e07bb014262b821756295c58d);
     try testing.expect(Fnv1a_128.hash("a") == 0xd228cb696f1a8caf78912b704e4a8964);
+    try testing.expect(Fnv1a_128.hashv(&.{"a"}) == 0xd228cb696f1a8caf78912b704e4a8964);
     try verify.iterativeApi(Fnv1a_128);
 }

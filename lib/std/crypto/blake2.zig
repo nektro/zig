@@ -106,6 +106,12 @@ pub fn Blake2s(comptime out_bits: usize) type {
             d.final(out);
         }
 
+        pub fn hashv(bytes: []const []const u8, out: *[digest_length]u8, options: Options) void {
+            var d = Self.init(options);
+            for (bytes) |b| d.update(b);
+            d.final(out);
+        }
+
         pub fn update(d: *Self, b: []const u8) void {
             var off: usize = 0;
 
@@ -402,6 +408,9 @@ test "blake2s256 streaming" {
     h.final(out[0..]);
     try htest.assertEqual(h2, out[0..]);
 
+    Blake2s256.hashv(&.{ "a", "b", "c" }, out[0..], .{});
+    try htest.assertEqual(h2, out[0..]);
+
     const h3 = "8d8711dade07a6b92b9a3ea1f40bee9b2c53ff3edd2a273dec170b0163568977";
 
     h = Blake2s256.init(.{});
@@ -539,6 +548,12 @@ pub fn Blake2b(comptime out_bits: usize) type {
         pub fn hash(b: []const u8, out: *[digest_length]u8, options: Options) void {
             var d = Self.init(options);
             d.update(b);
+            d.final(out);
+        }
+
+        pub fn hashv(bytes: []const []const u8, out: *[digest_length]u8, options: Options) void {
+            var d = Self.init(options);
+            for (bytes) |b| d.update(b);
             d.final(out);
         }
 
@@ -748,6 +763,9 @@ test "blake2b384 streaming" {
     h.update("b");
     h.update("c");
     h.final(out[0..]);
+    try htest.assertEqual(h2, out[0..]);
+
+    Blake2b384.hashv(&.{ "a", "b", "c" }, out[0..], .{});
     try htest.assertEqual(h2, out[0..]);
 
     const h3 = "b7283f0172fecbbd7eca32ce10d8a6c06b453cb3cf675b33eb4246f0da2bb94a6c0bdd6eec0b5fd71ec4fd51be80bf4c";

@@ -111,6 +111,12 @@ fn Sha2x32(comptime iv: Iv32, digest_bits: comptime_int) type {
             d.final(out);
         }
 
+        pub fn hashv(bytes: []const []const u8, out: *[digest_length]u8, options: Options) void {
+            var d = Self.init(options);
+            for (bytes) |b| d.update(b);
+            d.final(out);
+        }
+
         pub fn update(d: *Self, b: []const u8) void {
             var off: usize = 0;
 
@@ -507,6 +513,12 @@ fn Sha2x64(comptime iv: Iv64, digest_bits: comptime_int) type {
             d.final(out);
         }
 
+        pub fn hashv(bytes: []const []const u8, out: *[digest_length]u8, options: Options) void {
+            var d = Self.init(options);
+            for (bytes) |b| d.update(b);
+            d.final(out);
+        }
+
         pub fn update(d: *Self, b: []const u8) void {
             var off: usize = 0;
 
@@ -809,6 +821,9 @@ test "sha384 streaming" {
     h.update("c");
     h.final(out[0..]);
     try htest.assertEqual(h2, out[0..]);
+
+    Sha384.hashv(&.{ "a", "b", "c" }, out[0..], .{});
+    try htest.assertEqual(h2, out[0..]);
 }
 
 test Sha512 {
@@ -842,6 +857,9 @@ test "sha512 streaming" {
     h.update("b");
     h.update("c");
     h.final(out[0..]);
+    try htest.assertEqual(h2, out[0..]);
+
+    Sha512.hashv(&.{ "a", "b", "c" }, out[0..], .{});
     try htest.assertEqual(h2, out[0..]);
 }
 

@@ -70,6 +70,12 @@ pub fn Keccak(comptime f: u11, comptime output_bits: u11, comptime default_delim
             st.final(out);
         }
 
+        pub fn hashv(bytes: []const []const u8, out: *[digest_length]u8, options: Options) void {
+            var st = Self.init(options);
+            for (bytes) |b| st.update(b);
+            st.final(out);
+        }
+
         /// Absorb a slice of bytes into the state.
         pub fn update(self: *Self, bytes: []const u8) void {
             self.st.absorb(bytes);
@@ -140,6 +146,12 @@ fn ShakeLike(comptime security_level: u11, comptime default_delim: u8, comptime 
         pub fn hash(bytes: []const u8, out: []u8, options: Options) void {
             var st = Self.init(options);
             st.update(bytes);
+            st.squeeze(out);
+        }
+
+        pub fn hashv(bytes: []const []const u8, out: []u8, options: Options) void {
+            var st = Self.init(options);
+            for (bytes) |b| st.update(b);
             st.squeeze(out);
         }
 
@@ -263,6 +275,12 @@ fn CShakeLike(comptime security_level: u11, comptime default_delim: u8, comptime
             st.squeeze(out);
         }
 
+        pub fn hashv(bytes: []const []const u8, out: []u8, options: Options) void {
+            var st = Self.init(options);
+            for (bytes) |b| st.update(b);
+            st.squeeze(out);
+        }
+
         /// Absorb a slice of bytes into the state.
         pub fn update(self: *Self, bytes: []const u8) void {
             self.shaker.update(bytes);
@@ -352,6 +370,18 @@ fn KMacLike(comptime security_level: u11, comptime default_delim: u8, comptime r
         /// This is more efficient than reinitializing the state for each message at the cost of a small amount of memory.
         pub fn init(key: []const u8) Self {
             return initWithOptions(key, .{});
+        }
+
+        pub fn hash(bytes: []const u8, out: []u8, key: []const u8, options: Options) void {
+            var st = Self.initWithOptions(key, options);
+            st.update(bytes);
+            st.squeeze(out);
+        }
+
+        pub fn hashv(bytes: []const []const u8, out: []u8, key: []const u8, options: Options) void {
+            var st = Self.initWithOptions(key, options);
+            for (bytes) |b| st.update(b);
+            st.squeeze(out);
         }
 
         /// Add data to the state.
@@ -451,6 +481,18 @@ fn TupleHashLike(comptime security_level: u11, comptime default_delim: u8, compt
         /// Initialize a state for the MAC function.
         pub fn init() Self {
             return initWithOptions(.{});
+        }
+
+        pub fn hash(bytes: []const u8, out: []u8, options: Options) void {
+            var st = Self.initWithOptions(options);
+            st.update(bytes);
+            st.squeeze(out);
+        }
+
+        pub fn hashv(bytes: []const []const u8, out: []u8, options: Options) void {
+            var st = Self.initWithOptions(options);
+            for (bytes) |b| st.update(b);
+            st.squeeze(out);
         }
 
         /// Add data to the state, separated from previous updates.
@@ -564,6 +606,9 @@ test "sha3-224 streaming" {
     h.update("c");
     h.final(out[0..]);
     try htest.assertEqual("e642824c3f8cf24ad09234ee7d3c766fc9a3a5168d0c94ad73b46fdf", out[0..]);
+
+    Sha3_224.hashv(&.{ "a", "b", "c" }, out[0..], .{});
+    try htest.assertEqual("e642824c3f8cf24ad09234ee7d3c766fc9a3a5168d0c94ad73b46fdf", out[0..]);
 }
 
 test "sha3-256 single" {
@@ -589,6 +634,9 @@ test "sha3-256 streaming" {
     h.update("b");
     h.update("c");
     h.final(out[0..]);
+    try htest.assertEqual("3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532", out[0..]);
+
+    Sha3_256.hashv(&.{ "a", "b", "c" }, out[0..], .{});
     try htest.assertEqual("3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532", out[0..]);
 }
 
@@ -630,6 +678,9 @@ test "sha3-384 streaming" {
     h.update("c");
     h.final(out[0..]);
     try htest.assertEqual(h2, out[0..]);
+
+    Sha3_384.hashv(&.{ "a", "b", "c" }, out[0..], .{});
+    try htest.assertEqual(h2, out[0..]);
 }
 
 test "sha3-512 single" {
@@ -660,6 +711,9 @@ test "sha3-512 streaming" {
     h.update("b");
     h.update("c");
     h.final(out[0..]);
+    try htest.assertEqual(h2, out[0..]);
+
+    Sha3_512.hashv(&.{ "a", "b", "c" }, out[0..], .{});
     try htest.assertEqual(h2, out[0..]);
 }
 

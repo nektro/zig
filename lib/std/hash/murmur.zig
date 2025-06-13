@@ -12,6 +12,9 @@ pub const Murmur2_32 = struct {
         return @call(.always_inline, Self.hashWithSeed, .{ str, default_seed });
     }
 
+    // pub fn hashv(input: []const []const u8) u32
+    pub const hashv = @compileError("TODO: implement hashv");
+
     pub fn hashWithSeed(str: []const u8, seed: u32) u32 {
         const m: u32 = 0x5bd1e995;
         const len: u32 = @truncate(str.len);
@@ -97,6 +100,9 @@ pub const Murmur2_64 = struct {
         return @call(.always_inline, Self.hashWithSeed, .{ str, default_seed });
     }
 
+    // pub fn hashv(input: []const []const u8) u64
+    pub const hashv = @compileError("TODO: implement hashv");
+
     pub fn hashWithSeed(str: []const u8, seed: u64) u64 {
         const m: u64 = 0xc6a4a7935bd1e995;
         var h1: u64 = seed ^ (@as(u64, str.len) *% m);
@@ -174,6 +180,9 @@ pub const Murmur3_32 = struct {
     pub fn hash(str: []const u8) u32 {
         return @call(.always_inline, Self.hashWithSeed, .{ str, default_seed });
     }
+
+    // pub fn hashv(input: []const []const u8) u32
+    pub const hashv = @compileError("TODO: implement hashv");
 
     pub fn hashWithSeed(str: []const u8, seed: u32) u32 {
         const c1: u32 = 0xcc9e2d51;

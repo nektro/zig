@@ -98,6 +98,12 @@ pub fn Crc(comptime W: type, comptime algorithm: Algorithm(W)) type {
             c.update(bytes);
             return c.final();
         }
+
+        pub fn hashv(bytes: []const []const u8) W {
+            var c = init();
+            for (bytes) |b| c.update(b);
+            return c.final();
+        }
     };
 }
 

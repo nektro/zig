@@ -91,11 +91,18 @@ pub const Adler32 = struct {
         c.update(input);
         return c.final();
     }
+
+    pub fn hashv(input: []const []const u8) u32 {
+        var h = init();
+        for (input) |x| h.update(x);
+        return h.final();
+    }
 };
 
 test "adler32 sanity" {
     try testing.expectEqual(@as(u32, 0x620062), Adler32.hash("a"));
     try testing.expectEqual(@as(u32, 0xbc002ed), Adler32.hash("example"));
+    try testing.expectEqual(@as(u32, 0xbc002ed), Adler32.hashv(&.{ "ex", "ampl", "e" }));
 }
 
 test "adler32 long" {

@@ -54,6 +54,12 @@ pub fn Composition(comptime H1: type, comptime H2: type) type {
             d.H1.update(&H2_digest);
             d.H1.final(out);
         }
+
+        pub fn hashv(b: []const []const u8, out: *[digest_length]u8, options: Options) void {
+            var d = Self.init(options);
+            for (b) |x| d.update(x);
+            d.final(out);
+        }
     };
 }
 
@@ -76,5 +82,8 @@ test "Hash composition" {
     var out2: [Sha256.digest_length]u8 = undefined;
     Sha256.hash(&t, &out2, .{});
 
+    try std.testing.expectEqualSlices(u8, &out, &out2);
+
+    Sha256oSha256.hashv(&.{msg}, out[0..], .{});
     try std.testing.expectEqualSlices(u8, &out, &out2);
 }

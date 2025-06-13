@@ -194,6 +194,12 @@ pub const Wyhash = struct {
         self.total_len = input.len;
         return self.final2();
     }
+
+    pub fn hashv(seed: u64, input: []const []const u8) u64 {
+        var h = init(seed);
+        for (input) |x| h.update(x);
+        return h.final();
+    }
 };
 
 const verify = @import("verify.zig");
@@ -266,4 +272,8 @@ test "iterative maintains last sixteen" {
 
         try expectEqual(non_iterative_hash, iterative_hash);
     }
+}
+
+test "hashv" {
+    try expectEqual(0xc39cab13b115aad3, Wyhash.hashv(6, &[_][]const u8{"1234567890"} ** 8));
 }

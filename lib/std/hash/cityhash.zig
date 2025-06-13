@@ -165,6 +165,9 @@ pub const CityHash32 = struct {
         h = rotr32(h, 17) *% c1;
         return h;
     }
+
+    // pub fn hashv(input: []const []const u8) u32
+    pub const hashv = @compileError("TODO: implement hashv");
 };
 
 pub const CityHash64 = struct {
@@ -332,6 +335,9 @@ pub const CityHash64 = struct {
 
         return hashLen16(hashLen16(v.first, w.first) +% shiftmix(y) *% k1 +% z, hashLen16(v.second, w.second) +% x);
     }
+
+    // pub fn hashv(input: []const []const u8) u64
+    pub const hashv = @compileError("TODO: implement hashv");
 
     pub fn hashWithSeed(str: []const u8, seed: u64) u64 {
         return @call(.always_inline, Self.hashWithSeeds, .{ str, k2, seed });

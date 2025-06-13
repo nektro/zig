@@ -70,6 +70,9 @@ pub fn hash(seed: u64, input: []const u8) u64 {
     return mix(a ^ sc[0] ^ len, b ^ sc[1]);
 }
 
+// pub fn hash(seed: u64, input: []const []const u8) u64
+pub const hashv = @compileError("TODO: implement hashv");
+
 test "RapidHash.hash" {
     const bytes: []const u8 = "abcdefgh" ** 128;
 

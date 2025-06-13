@@ -238,6 +238,8 @@ pub const XxHash64 = struct {
             return finalize(hasher.merge(), i, input[i..]);
         }
     }
+
+    pub const hashv = @compileError("TODO: implement hashv");
 };
 
 pub const XxHash32 = struct {
@@ -418,6 +420,8 @@ pub const XxHash32 = struct {
             return finalize(hasher.merge(), i, input[i..]);
         }
     }
+
+    pub const hashv = @compileError("TODO: implement hashv");
 };
 
 pub const XxHash3 = struct {
@@ -686,6 +690,8 @@ pub const XxHash3 = struct {
         acc.consume(std.mem.bytesAsSlice(Block, input[0..block_count]));
         return acc.digest(input.len, @ptrCast(last_block));
     }
+
+    pub const hashv = @compileError("TODO: implement hashv");
 
     // Public API - Streaming
 

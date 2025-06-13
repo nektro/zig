@@ -407,6 +407,12 @@ pub const Blake3 = struct {
         d.final(out);
     }
 
+    pub fn hashv(bytes: []const []const u8, out: []u8, options: Options) void {
+        var d = Blake3.init(options);
+        for (bytes) |b| d.update(b);
+        d.final(out);
+    }
+
     fn pushCv(self: *Blake3, cv: [8]u32) void {
         self.cv_stack[self.cv_stack_len] = cv;
         self.cv_stack_len += 1;

@@ -60,6 +60,12 @@ pub const Md5 = struct {
         d.final(out);
     }
 
+    pub fn hashv(bytes: []const []const u8, out: *[digest_length]u8, options: Options) void {
+        var d = Self.init(options);
+        for (bytes) |b| d.update(b);
+        d.final(out);
+    }
+
     pub fn update(d: *Self, b: []const u8) void {
         var off: usize = 0;
 
@@ -259,7 +265,9 @@ test "streaming" {
     h.update("b");
     h.update("c");
     h.final(out[0..]);
+    try htest.assertEqual("900150983cd24fb0d6963f7d28e17f72", out[0..]);
 
+    Md5.hashv(&.{ "a", "b", "c" }, out[0..], .{});
     try htest.assertEqual("900150983cd24fb0d6963f7d28e17f72", out[0..]);
 }
 
